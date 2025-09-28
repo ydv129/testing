@@ -368,3 +368,23 @@ print("Result1 and Result2 are the same:", r1 == r2)
 
 
 
+-------------------------------------------------------------------------------------------------------------
+import random
+
+def create_deck():
+	suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+	ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+	return [f'{rank}of{suit}' for suit in suits for rank in ranks]
+
+def print_deck(deck, title):
+	print(title)
+	print(', '.join(deck))
+
+def main():
+	deck = create_deck()
+	print_deck(deck, 'Deck before shuffling:')
+	random.shuffle(deck)
+	print_deck(deck, '\nDeck after shuffling:')
+
+if __name__ == '__main__':
+	main()
