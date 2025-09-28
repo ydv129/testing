@@ -1,0 +1,370 @@
+Depth First Search
+
+def dfs(graph, start, visited=None):
+    if visited is None:
+        visited = set()
+    visited.add(start)
+    print(start)
+    for neighbor in graph[start]:
+        if neighbor not in visited:
+            dfs(graph, neighbor, visited)
+    return visited
+
+
+graph = {
+    '1': ['2', '3'],
+    '2': ['4', '5'],
+    '3': ['6'],
+    '4': [],
+    '5': ['6'],
+    '6': []
+}
+
+dfs(graph, '1')
+
+
+
+
+-------Bfs --------
+
+
+graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F', 'G'],
+    'D': [],
+    'E': [],
+    'F': [],
+    'G': []
+}
+
+print("Graph:")
+for A , B in graph.items():
+    print(f"{A}: {B}")
+
+queue = []
+def mybfs(graph, queue, node):
+    queue.append(node)
+    visited = set()
+    while queue:
+        m = queue.pop(0)
+        if m not in visited:
+            print(m, end=" =")
+            visited.add(m)
+            queue.extend(graph[m])
+
+print("\nTraversal with BFS")
+mybfs(graph, queue, 'A')
+
+
+----------------------------------------
+
+def nqueens(n, row=0, board=[]):
+    if row == n:
+        for i in board:
+            print('.' * i + 'Q' + '.' * (n - i - 1))
+        print()
+        return
+    for col in range(n):
+        if all(col != c and abs(row - r) != abs(col - c) for r, c in enumerate(board)):
+            nqueens(n, row + 1, board + [col])
+
+nqueens(4)
+
+
+
+-----------------------------------------------------------------------------
+
+
+def hanoi(n, source, target, aux):
+    if n == 1:
+        print(f"Move disk 1 from {source} to {target}")
+        return
+    hanoi(n-1, source, aux, target)
+    print(f"Move disk {n} from {source} to {target}")
+    hanoi(n-1, aux, target, source)
+hanoi(3, 'A', 'C', 'B')
+
+--------------------------------------------------------------------------
+
+def ab(depth, idx, mx, vals, a, b):
+    if depth == 0: return vals[idx]
+    if mx:
+        for i in range(2):
+            a = max(a, ab(depth-1, idx*2+i, 0, vals, a, b))
+            if b <= a: break
+        return a
+    else:
+        for i in range(2):
+            b = min(b, ab(depth-1, idx*2+i, 1, vals, a, b))
+            if b <= a: break
+        return b
+
+vals = [3,5,6,9,1,2,0,-1]
+print(ab(3,0,1,vals,float('-inf'),float('inf')))
+
+----------------------------------------------------------------------------------
+
+
+import random
+
+def obj(x):
+    return 2 * x + 10
+
+def hill(x, step, rev, times):
+    print(x, obj(x))
+    for _ in range(times):
+        nx = x + random.choice([step, rev])
+        if obj(nx) > obj(x):
+            x = nx
+    return x, obj(x)
+
+x0 = 0
+step = 0.5
+rev = -0.5
+times = 100
+bestx, besty = hill(x0, step, rev, times)
+print(bestx, besty)
+
+-------------------------------------------------------------------------------------
+from collections import deque
+
+def astar(start, graph, weights):
+    queue = deque([start])
+    path = [start]
+    while queue:
+        node = queue.popleft()
+        neighbors = graph.get(node, [])
+        if not neighbors:
+            break
+        # Find neighbor with minimum weight
+        min_n = min(neighbors, key=lambda n: weights[n])
+        queue.append(min_n)
+        path.append(min_n)
+    print(path)
+
+graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['D', 'E'],
+    'D': [],
+    'E': []
+}
+weights = {
+    'A': 11,
+    'B': 28,
+    'C': 47,
+    'D': 7,
+    'E': 4
+}
+
+astar('A', graph, weights)
+
+------------------------------------------------------------------------------------
+|def astar(s, g, w):
+    p = [s]
+    while g[s]:
+        s = min(g[s], key=w.get)
+        p.append(s)
+    print(p)
+
+g = {'A': ['B', 'C'], 'B': ['D', 'E'], 'C': ['D', 'E'], 'D': [], 'E': []}
+w = {'A': 11, 'B': 28, 'C': 47, 'D': 7, 'E': 4}
+astar('A', g, w)  |
+---------------------------------------------------------------------------------
+
+
+
+from collections import deque
+
+def jug_states(j1c, j2c, goal=(1,3)):
+    q, v = deque([(0,0)]), set([(0,0)])
+    while q:
+        a, b = q.popleft()
+        print((a, b))
+        if (a, b) == goal: break
+        nxt = [
+            (j1c, b), (a, j2c), (0, b), (a, 0),
+            (a - min(a, j2c-b), b + min(a, j2c-b)),
+            (a + min(b, j1c-a), b - min(b, j1c-a))
+        ]
+        for s in nxt:
+            if s not in v:
+                v.add(s)
+                q.append(s)
+
+jug_states(4, 3)
+
+
+-------------------------------------------------------------------------
+tic  tac toe
+
+import os
+import time
+
+board = [" "] * 10  # index 0 unused
+game_running = True
+player = 1  # 1 = X, 2 = O
+
+def draw_board():
+    print(f"{board[1]} | {board[2]} | {board[3]}")
+    print("--+---+--")
+    print(f"{board[4]} | {board[5]} | {board[6]}")
+    print("--+---+--")
+    print(f"{board[7]} | {board[8]} | {board[9]}")
+
+def check_win():
+    wins = [(1,2,3),(4,5,6),(7,8,9),
+            (1,4,7),(2,5,8),(3,6,9),
+            (1,5,9),(3,5,7)]
+    for x,y,z in wins:
+        if board[x] == board[y] == board[z] != " ":
+            return True
+    return False
+
+def check_draw():
+    return all(board[i] != " " for i in range(1,10))
+
+print("TIC-TAC-TOE Game")
+print("Player 1 [X] ----- Player 2 [O]\n")
+time.sleep(1)
+
+while game_running:
+    os.system("cls" if os.name == "nt" else "clear")
+    draw_board()
+    mark = "X" if player == 1 else "O"
+    try:
+        pos = int(input(f"Player {player}'s turn ({mark}), choose [1-9]: "))
+    except ValueError:
+        continue
+    if pos < 1 or pos > 9 or board[pos] != " ":
+        continue
+    board[pos] = mark
+
+    if check_win():
+        os.system("cls" if os.name == "nt" else "clear")
+        draw_board()
+        print(f"Player {player} wins!")
+        break
+    if check_draw():
+        os.system("cls" if os.name == "nt" else "clear")
+        draw_board()
+        print("It's a draw!")
+        break
+
+    player = 2 if player == 1 else 1
+
+-------------------------------------------------------------------------
+
+
+def bfs(src, target):
+    queue = [src]
+    explored = []
+    while queue:
+        state = queue.pop(0)
+        explored.append(state)
+        print(state)
+        if state == target:
+            print("Success")
+            return
+        for move in possible_moves(state, explored):
+            if move not in explored and move not in queue:
+                queue.append(move)
+
+def possible_moves(state, explored):
+    b = state.index(0)
+    moves = []
+    if b not in [0,1,2]: moves.append('u')
+    if b not in [6,7,8]: moves.append('d')
+    if b not in [0,3,6]: moves.append('l')
+    if b not in [2,5,8]: moves.append('r')
+    result = []
+    for m in moves:
+        new_state = gen(state, m, b)
+        if new_state not in explored:
+            result.append(new_state)
+    return result
+
+def gen(state, move, b):
+    temp = state.copy()
+    if move == 'u':
+        temp[b], temp[b-3] = temp[b-3], temp[b]
+    if move == 'd':
+        temp[b], temp[b+3] = temp[b+3], temp[b]
+    if move == 'l':
+        temp[b], temp[b-1] = temp[b-1], temp[b]
+    if move == 'r':
+        temp[b], temp[b+1] = temp[b+1], temp[b]
+    return temp
+
+src = [1,2,3,4,5,6,0,7,8]
+target = [1,2,3,4,5,6,7,8,0]
+bfs(src, target) 
+
+-----------------------------------------------------------------
+satisfaction
+
+
+adjacent(1,2). adjacent(2,1).
+adjacent(1,3). adjacent(3,1).
+adjacent(1,4). adjacent(4,1).
+adjacent(1,5). adjacent(5,1).
+adjacent(2,3). adjacent(3,2).
+adjacent(2,4). adjacent(4,2).
+adjacent(3,4). adjacent(4,3).
+adjacent(4,5). adjacent(5,4).
+
+color(1,red,a).    color(1,red,b).
+color(2,blue,a).   color(2,blue,b).
+color(3,green,a).  color(3,green,b).
+color(4,yellow,a). color(4,blue,b).
+color(5,blue,a).   color(5,green,b).
+
+conflict(Coloring) :-
+    adjacent(X,Y),
+    color(X,Color,Coloring),
+    color(Y,Color,Coloring).
+
+conflict(R1,R2,Coloring) :-
+    adjacent(R1,R2),
+    color(R1,Color,Coloring),
+    color(R2,Color,Coloring).
+-----------------------------------------------------------------
+assosiative
+
+
+a = int(input("Enter the value for a: "))
+b = int(input("Enter the value for b: "))
+c = int(input("Enter the value for c: "))
+
+# Using (a + b) * c
+r1 = (a + b) * c
+print("Result using (a + b) * c:", r1)
+
+# Using a*c + b*c
+r2 = a * c + b * c
+print("Result using a*c + b*c:", r2)
+
+print("Result1 and Result2 are the same:", r1 == r2)
+
+------------------------------------------------------------------
+
+
+distributive
+
+a = int(input("Enter the value for a: "))
+b = int(input("Enter the value for b: "))
+c = int(input("Enter the value for c: "))
+
+# Given expression: a * (b + c)
+r1 = a * (b + c)
+print("Result 1 (a * (b + c)):", r1)
+
+# Distributive expression: a*b + a*c
+r2 = a * b + a * c
+print("Result 2 (a*b + a*c):", r2)
+
+print("Result1 and Result2 are the same:", r1 == r2)
+
+
+
