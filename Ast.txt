@@ -1,0 +1,502 @@
+#1A DFS
+''' graph = {
+'1':['2','3'],
+'2':['4','5'],
+'3':['6'],
+'4':[],
+'5':['6'],
+'6':[]
+}
+
+visited=set()
+def dfs(visited,graph,node):
+    if node not in visited:
+        print(node,'-',end="")
+        visited.add(node)
+        for neighbour in graph[node]:
+            dfs(visited,graph,neighbour)
+
+print("Following is the Depth First Search Algorithm")
+dfs(visited,graph,'1') '''
+
+#1B BFS
+''' graph = {
+'A':['B','C'],
+'B':['D','E'],
+'C':['F','G'],
+'D':[],
+'E':[],
+'F':[],
+'G':[]
+}
+
+#print(graph)
+
+queue=[]
+
+def bfs(graph,queue,initialnode):
+    queue.append(initialnode)
+    while queue:
+        m=queue.pop(0)
+        print(m,'-',end="")
+        for neighbour in graph[m]:
+            queue.append(neighbour)
+
+print("Following is the BFS Algorithm")
+bfs(graph,queue,'A') '''
+
+#2A N-QUEEN PROBLEM
+
+''' def print_solution(board, n):
+    for i in range(n):
+        for j in range(n):
+            print(board[i][j], end=" ")
+        print()
+    print("\n")
+
+def is_safe(board, row, col, n):
+    
+    for i in range(col):
+        if board[row][i] == 1:
+            return False
+
+    
+    for i, j in zip(range(row, -1, -1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+
+   
+    for i, j in zip(range(row, n, 1), range(col, -1, -1)):
+        if board[i][j] == 1:
+            return False
+
+    return True
+
+def solve_nq_util(board, col, n):
+    
+    if col >= n:
+        print_solution(board, n)
+        return True
+
+    res = False
+    
+    for i in range(n):
+        if is_safe(board, i, col, n):
+            board[i][col] = 1
+            res = solve_nq_util(board, col + 1, n) or res
+            board[i][col] = 0  
+
+    return res
+
+def solve_nq(n):
+    board = [[0] * n for _ in range(n)]
+    if not solve_nq_util(board, 0, n):
+        print("Solution does not exist")
+        return
+    return
+
+# Example usage:
+n = int(input("Enter the number of queens (N): "))
+solve_nq(n)'''
+
+#2B TOWER OF HANOI PROBLEM
+
+''' def tower_of_hanoi(n,source,target,auxiliary):
+    if n==1:
+        print(f"Move Disk from {source} to {target}")
+        return
+
+    tower_of_hanoi(n-1,source,auxiliary,target)
+    print(f"Move Disk from {source} to {target}")
+
+    tower_of_hanoi(n-1,auxiliary,target,source)
+
+#Example Usage
+n=3
+tower_of_hanoi(n,'A','C','B') '''
+
+#3A ALPHA BETA SREACH/PRUNING
+
+''' import math
+def alpha_beta_search(depth,node_index,is_maximizing_player,alpha,beta):
+    if depth==0 or node_index >=len(values):
+        return values[node_index]
+
+    if is_maximizing_player:
+        max_eval=-math.inf
+        for i in range(2):
+            eval=alpha_beta_search(depth-1,node_index*2+i,False,alpha,beta)
+            max_eval=max(max_eval,eval)
+            alpha=max(alpha,eval)
+            if beta <= alpha:
+                break
+        return max_eval
+    else:
+        min_eval=math.inf
+
+        for i in range(2):
+            eval=alpha_beta_search(depth-1,node_index*2+i,True,alpha,beta)
+            min_eval=min(min_eval,eval)
+            beta=min(beta,eval)
+            if beta <= alpha:
+                break
+        return min_eval
+
+if __name__=="__main__":
+    values=[3,5,6,9,1,2,0,-1]
+    depth=3
+    result=alpha_beta_search(depth,0,True,-math.inf,math.inf)
+    print(f"The Optimal Value is:{result}") '''
+
+#3B Hill Climbing Problem
+
+''' import random
+def objective_function(x_start):
+    y=(x_start*2)+10
+    return y
+def hillclimbing(x_start,stepval,stepval_rev,maxtime):
+    currentx=x_start
+    currenty=objective_function(x_start)
+    print(currentx,currenty)
+
+    for i in range(maxtime):
+        nextx=currentx+random.choice([stepval,stepval_rev])
+        nexty=objective_function(nextx)
+    return currentx,currenty
+
+#mainlogic
+x_start=0
+stepval=0.5
+stepval_rev=-0.5
+maxtime=100
+bestx,besty=hillclimbing(x_start,stepval,stepval_rev,maxtime)
+print(bestx,besty) '''
+
+
+#4A A STAR ALGORITHM
+
+''' from collections import deque
+def astaralgo(startnode,graph,modifiedweghts):
+    queue=deque()
+    queue.append(startnode)
+    finalpath=[]
+    finalpath.append(startnode)
+    while queue:
+        minval=9999
+        cnode=queue.popleft()
+        for n in graph[cnode]:
+            if(modifiedweights[n]<minval):
+                minval=modifiedweights[n]
+        for key, val in modifiedweights.items():
+            if val == minval:
+                minkey = key
+                #print(minkey)
+                queue.append(minkey)
+                finalpath.append(minkey)
+                break
+        print(finalpath)
+
+# Main Logic
+graph = {
+    'A':['B','C'],
+    'B':['D','E'],
+    'C':[],
+    'D':[],
+    'E':[]
+}
+
+weights = {
+    'A':[10,0],
+    'B':[7,2],
+    'C':[6,4],
+    'D':[5,2],
+    'E':[3,1]
+}
+modifiedweights = {}
+
+for key, value in weights.items():
+    modifiedweights[key] = value[0] + value[1]
+
+astaralgo('A', graph, modifiedweights) '''
+
+#4B WATER JUG PROBLEM
+
+''' from collections import deque
+
+def generate_state_space(jug1_capacity,jug2_capacity):
+    queue = deque()
+    visited = set()
+
+    initial_state = (0,0)
+    final_state = (1,3)
+
+    queue.append(initial_state)
+    visited.add(initial_state)
+
+    states = []
+    while queue:
+        current_state = queue.popleft()
+        print(current_state)
+        if current_state == final_state:
+            break
+        jug1, jug2 = current_state
+        states.append(current_state)
+
+        actions = [
+            (jug1_capacity, jug2),
+            (jug1, jug2_capacity),
+            (0, jug2),
+            (jug1, 0),
+            (max(0, jug1-(jug2_capacity-jug2)), min(jug2_capacity, jug1+jug2)),
+            (min(jug1_capacity, jug1+jug2), max(0, jug2-(jug1_capacity-jug1))),
+        ]
+
+        for action in actions:
+            if action not in visited:
+                visited.add(action)
+                queue.append(action)
+
+jug1_capacity = 4
+jug2_capacity = 3
+generate_state_space(jug1_capacity, jug2_capacity) '''
+
+
+#5A TIC-TAC-TOE USING MINMAX ALGORITHM
+
+''' import os
+import time
+
+board = ['', '', '', '', '', '', '', '', '', '']
+player = 1
+win = 1
+draw = -1
+Running = 0
+Stop = 1
+Game = Running
+Mark = 'X'
+
+
+def Drawboard():
+    print("\n")
+    print(" {} | {} | {} ".format(board[1] or "1", board[2] or "2", board[3] or "3"))
+    print("---+---+---")
+    print(" {} | {} | {} ".format(board[4] or "4", board[5] or "5", board[6] or "6"))
+    print("---+---+---")
+    print(" {} | {} | {} ".format(board[7] or "7", board[8] or "8", board[9] or "9"))
+    print("\n") 
+
+
+def Checkpoint(pos):
+    if pos <= 9:
+        if board[pos] == '':
+            return True
+        else:
+            return False
+    return False
+
+
+def CheckWin():
+    global Game
+    if (board[1] == board[2] and board[2] == board[3] and board[1] != ''):
+        Game = win
+        return
+    elif (board[4] == board[5] and board[5] == board[6] and board[4] != ''):
+        Game = win
+        return
+    elif (board[7] == board[8] and board[8] == board[9] and board[7] != ''):
+        Game = win
+        return
+
+    elif (board[1] == board[4] and board[4] == board[7] and board[1] != ''):
+        Game = win
+        return
+    elif (board[2] == board[5] and board[5] == board[8] and board[2] != ''):
+        Game = win
+        return
+    elif (board[3] == board[6] and board[6] == board[9] and board[3] != ''):
+        Game = win
+        return
+
+    elif (board[1] == board[5] and board[5] == board[9] and board[1] != ''):
+        Game = win
+        return
+    elif (board[3] == board[5] and board[5] == board[7] and board[3] != ''):
+        Game = win
+        return
+
+    elif (board[1] != '' and board[2] != '' and board[3] != '' and
+          board[4] != '' and board[5] != '' and board[6] != '' and
+          board[7] != '' and board[8] != '' and board[9] != ''):
+        Game = draw
+        return
+    else:
+        Game = Running
+
+
+print("TIC-TAC-TOE Game")
+print("Player1 [X]  ------  Player2 [O]\n")
+print("Please Wait...")
+time.sleep(1)
+
+while Game == Running:
+    os.system('cls' if os.name == 'nt' else 'clear')
+    Drawboard()
+
+    if player % 2 != 0:
+        print("Player 1's Turn")
+        Mark = "X"
+    else:
+        print("Player 2's Turn")
+        Mark = "O"
+
+    pos = int(input("Enter The position between [1-9] where you want to mark: "))
+
+    if Checkpoint(pos):
+        board[pos] = Mark
+        CheckWin()
+        player += 1
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+
+    if Game == draw:
+        print("Game Draw")
+    elif Game == win:
+        player -= 1
+        if player % 2 != 0:
+            print("Player 1 Won")
+        else:
+            print("Player 2 Won") '''
+
+#5B SHUFFLE DECK OF CARDs
+
+''' import random
+cardfaces=[]
+suits=["Hearts","Diamond","Spades","Clubs"]
+deck=[]
+royals=["J","Q","K","A"]
+
+for i in range(2,11):
+    cardfaces.append(str(i))
+for k in range(4):
+    cardfaces.append(royals[k])
+
+#print(cardfaces)
+
+for m in range(4):
+    for j in range(13):
+        c=cardfaces[j]+"of"+suits[m]
+        deck.append(c)
+
+print("\nDeck of Cards Before Shuffling")
+print(deck)
+
+print("\nDeck of Cards After Shuffling")
+random.shuffle(deck)
+print(deck) '''
+
+
+#8A Associative Law
+
+''' a=int(input("Enter the value for a:"))
+b=int(input("Enter the value for b:"))
+c=int(input("Enter the value for c:"))
+r1=(a+b)+c
+print("Result1 is:",r1)
+print("After Applying Associative Law")
+r2=a+(b+c)
+print("Result2 is:",r2)
+print("Result1 and Result2 are same") '''
+
+#8B Distributive Law
+
+''' a=int(input("Enter the value for a:"))
+b=int(input("Enter the value for b:"))
+c=int(input("Enter the value for c:"))
+r1=a*(b+c)
+print("Result1 is:",r1)
+print("After Applying Distributive Law")
+r2=(a*b) + (a*c)
+print("Result2 is:",r2)
+print("Result1 and Result2 are same") '''
+
+#7A
+''' adjacent(1,2). adjacent(2,1).
+adjacent(1,3). adjacent(3,1).
+adjacent(1,4). adjacent(4,1).
+adjacent(1,5). adjacent(5,1).
+adjacent(2,3). adjacent(3,2).
+adjacent(2,4). adjacent(4,2).
+adjacent(3,4). adjacent(4,3).
+adjacent(4,5). adjacent(5,4).
+
+color(1,red,a). color(1,red,b).
+color(2,blue,a). color(2,blue,b).
+color(3,green,a). color(3,green,b).
+color(4,yellow,a). color(4,blue,b).
+color(5,blue,a). color(5,green,b).
+
+conflict(Coloring):-
+    adjacent(X,Y),
+    color(X,Color,Coloring),
+    color(Y,Color,Coloring).
+
+conflict(R1,R2,Coloring):-
+    adjacent(R1,R2),
+    color(R1,Color,Coloring),
+    color(R2,Color,Coloring). '''
+
+
+#9A
+''' batsman(sachin).
+batsman(rohit).
+batsman(virat).
+bowler(bumrah).
+bowler(hardik).
+wicketkeeper(dhoni).
+wicketkeeper(dravid).
+cricketer(X):-batsman(X).
+cricketer(Y):-bowler(Y).
+cricketer(Z):-wicketkeeper(Z). '''
+
+#10
+''' male(shankar).
+male(ulhas).
+male(prashant).
+male(saurabh).
+male(satish).
+female(umabai).
+female(sadhana).
+female(mrunal).
+female(swati).
+parent(shankar,umabai,ulhas).
+parent(ulhas,mrunal,prashant).
+parent(satish,sadhana,swati).
+parent(satish,sadhana,saurabh).
+father(X):-parent(X,Y,Z).
+mother(X):-parent(Z,X,Y).
+fatherchild(X,Z):-parent(X,Y,Z).
+motherchild(Y,Z):-parent(X,Y,Z).
+hw(X,Y):-parent(X,Y,Z).
+wh(Y,X):-parent(X,Y,Z). '''
+
+
+
+
+
+
+
+
+              
+
+
+
+    
+
+
+
+
+
+
+
+
