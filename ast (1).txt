@@ -1,0 +1,198 @@
+import RPi.GPIO as GPIO
+import time
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(18, GPIO.OUT)
+import RPi.GPIO as GPIO
+import time
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+GPIO.setup(3, GPIO.OUT)
+
+while True:
+    GPIO.output(3, 1)
+    time.sleep(1)
+    GPIO.output(3, 0)
+    time.sleep(1)
+----------------------------------------------------------------------
+# Relay program starts
+import RPi.GPIO as GPIO
+import time
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(20, GPIO.OUT)
+
+while True:
+    GPIO.output(20, 1)
+    time.sleep(1)
+    GPIO.output(20, 0)
+    time.sleep(1)
+
+
+1: GND- connect it to raspberry pin 6
+2: VCC- connect it to raspberry pin 2
+3: DIN- connect it to raspberry pin 38 (GPIO20)
+
+
+
+
+
+---------------------------------------------------------------------
+####Pattern Printing
+
+
+
+GPIO.setup(19, GPIO.OUT)
+GPIO.setup(23, GPIO.OUT)
+GPIO.setup(22, GPIO.OUT)
+
+while True:
+    GPIO.output(18, 1)
+    GPIO.output(19, 1)
+    GPIO.output(22, 1)
+    GPIO.output(23, 1)
+    time.sleep(1)
+    
+    GPIO.output(18, 0)
+    GPIO.output(19, 0)
+    GPIO.output(22, 0)
+    GPIO.output(23, 0)
+    time.sleep(1)
+    
+    GPIO.output(18, 1)
+    GPIO.output(19, 1)
+    GPIO.output(22, 0)
+    GPIO.output(23, 0)
+
+--------------------------------------------------------
+GPS
+sudo raspi-config
+->interfacing options ->serial> enable > finish
+sudo apt-get install gpsd gpsd-clients
+sudo cat /dev/serial0
+sudo adduser pi dialout
+sudo systemctl stop gpsd.socket
+sudo gpsd /dev/serial0 -F /var/run/gpsd.sock
+sudo gpsmon
+sudo cgps -s
+sudo cat /dev/ttyAMA0
+-------------------------------------------------------------------
+
+#pip3 install mfrc522
+
+#write
+
+
+from mfrc522 import SimpleMFRC522
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+reader = SimpleMFRC522()
+while True:
+ data=input("enter some text:")
+ reader.write(data)
+ print("data write successful")
+GPIO.cleanup()
+
+
+#enable i2c spi
+#start-> preferences->pi configuration-> interfaces->
+
+i2c and spi on ->ok restart if needed
+
+####Read
+
+from mfrc522 import SimpleMFRC522
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BCM)
+reader = SimpleMFRC522()
+while True:
+ id, text = reader.read()
+ print("read data:", text)
+GPIO.cleanup()
+
+
+
+
+---------------------------------------------------------------------
+##### 7 Segment Display
+
+
+install package
+sudo pip install raspberrypi-tm1637
+
+#program
+
+from time import sleep
+import tm1637
+import datetime
+
+Display = tm1637.TM1637(clk=21, dio=20)
+
+while True:
+    t = datetime.datetime.now()
+    Display.show("{:02d}{:02d}".format(t.hour, t.minute), colon=True)
+    sleep(1)
+    Display.show("{:02d}{:02d}".format(t.hour, t.minute), colon=False)
+    sleep(1)
+
+------------------------------------------------------------------------------
+########TELEGRAM
+sudo pip install telepot
+
+
+import time
+import telepot
+import RPi.GPIO as GPIO
+from telepot.loop import MessageLoop
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(20, GPIO.OUT)
+
+def handle(msg):
+    chat_id = msg['chat']['id']
+    command = msg['text']
+    print('Got command: %s' % command)
+    bot.sendMessage(chat_id, "Command received");
+
+    if command == '/on':
+        print('on')
+        GPIO.output(20, GPIO.HIGH)
+    elif command == '/off':
+        print('off')
+        GPIO.output(20, GPIO.LOW)
+
+bot = telepot.Bot('HTTP-API')
+MessageLoop(bot, handle).run_as_thread()
+print('I am listening ...')
+while 1:
+    time.sleep(10)
+
+----------------------------------------------------------------------------------
+
+####OCILOSCOPE
+pip install adafruit-ads1x15
+
+
+
+
+import time
+import Adafruit_ADS1x15
+
+adc = Adafruit_ADS1x15.ADS1115()
+GAIN = 1
+
+print('Reading ADS1x15 values, press Ctrl-C to quit...')
+print('| {0:>6} | {1:>6} | {2:26} | {3:>6} |'.format(*range(4)))
+print('-'*37)
+
+while True:
+    values = [0]*4
+    for i in range(4):
+        values[i] = adc.read_adc(i, gain=GAIN)
+    print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
+    time.sleep(0.5)
+
+ 
