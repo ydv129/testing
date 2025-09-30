@@ -1,198 +1,5226 @@
-import RPi.GPIO as GPIO
-import time
+Practical No. 1
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(18, GPIO.OUT)
-import RPi.GPIO as GPIO
-import time
+Implement the following Simple Servlet Applications
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setwarnings(False)
-GPIO.setup(3, GPIO.OUT)
+Part A.
 
-while True:
-    GPIO.output(3, 1)
-    time.sleep(1)
-    GPIO.output(3, 0)
-    time.sleep(1)
-----------------------------------------------------------------------
-# Relay program starts
-import RPi.GPIO as GPIO
-import time
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(20, GPIO.OUT)
-
-while True:
-    GPIO.output(20, 1)
-    time.sleep(1)
-    GPIO.output(20, 0)
-    time.sleep(1)
-
-
-1: GND- connect it to raspberry pin 6
-2: VCC- connect it to raspberry pin 2
-3: DIN- connect it to raspberry pin 38 (GPIO20)
+Aim: Create a simple calculator application using servlet.
 
 
 
+CODE:
 
+index.html
 
----------------------------------------------------------------------
-####Pattern Printing
+<!DOCTYPE html>
 
+<html>
 
+<head>
 
-GPIO.setup(19, GPIO.OUT)
-GPIO.setup(23, GPIO.OUT)
-GPIO.setup(22, GPIO.OUT)
+<title>Calculator</title>
 
-while True:
-    GPIO.output(18, 1)
-    GPIO.output(19, 1)
-    GPIO.output(22, 1)
-    GPIO.output(23, 1)
-    time.sleep(1)
-    
-    GPIO.output(18, 0)
-    GPIO.output(19, 0)
-    GPIO.output(22, 0)
-    GPIO.output(23, 0)
-    time.sleep(1)
-    
-    GPIO.output(18, 1)
-    GPIO.output(19, 1)
-    GPIO.output(22, 0)
-    GPIO.output(23, 0)
+</head>
 
---------------------------------------------------------
-GPS
-sudo raspi-config
-->interfacing options ->serial> enable > finish
-sudo apt-get install gpsd gpsd-clients
-sudo cat /dev/serial0
-sudo adduser pi dialout
-sudo systemctl stop gpsd.socket
-sudo gpsd /dev/serial0 -F /var/run/gpsd.sock
-sudo gpsmon
-sudo cgps -s
-sudo cat /dev/ttyAMA0
--------------------------------------------------------------------
+<body>
 
-#pip3 install mfrc522
+<form action=" SimpleCal">
 
-#write
+Enter First Number: <input type="text" name="txtNum1"> <br><br>
 
+Enter Second Number: <input type="text" name="txtNum2"> <br><br>
 
-from mfrc522 import SimpleMFRC522
-import RPi.GPIO as GPIO
-import time
-GPIO.setmode(GPIO.BCM)
-reader = SimpleMFRC522()
-while True:
- data=input("enter some text:")
- reader.write(data)
- print("data write successful")
-GPIO.cleanup()
+Select Operation: <br>
 
+<input type="radio" name="opt" value="+"> Addition <br>
 
-#enable i2c spi
-#start-> preferences->pi configuration-> interfaces->
+<input type="radio" name="opt" value="-"> Subtraction <br>
 
-i2c and spi on ->ok restart if needed
+<input type="radio" name="opt" value="*"> Multiplication <br>
 
-####Read
+<input type="radio" name="opt" value="/"> Division <br> <br>
 
-from mfrc522 import SimpleMFRC522
-import RPi.GPIO as GPIO
-import time
-GPIO.setmode(GPIO.BCM)
-reader = SimpleMFRC522()
-while True:
- id, text = reader.read()
- print("read data:", text)
-GPIO.cleanup()
+<input type="submit" value="Calculate">
 
+<input type="reset" value="Clear">
 
+</form>
 
+</body>
 
----------------------------------------------------------------------
-##### 7 Segment Display
+</html>
 
+SimpleCal.java
 
-install package
-sudo pip install raspberrypi-tm1637
+package demoCal;
 
-#program
+import java.io.IOException;
 
-from time import sleep
-import tm1637
-import datetime
+import java.io.PrintWriter;
 
-Display = tm1637.TM1637(clk=21, dio=20)
+import javax.servlet.ServletException;
 
-while True:
-    t = datetime.datetime.now()
-    Display.show("{:02d}{:02d}".format(t.hour, t.minute), colon=True)
-    sleep(1)
-    Display.show("{:02d}{:02d}".format(t.hour, t.minute), colon=False)
-    sleep(1)
+import javax.servlet.http.HttpServlet;
 
-------------------------------------------------------------------------------
-########TELEGRAM
-sudo pip install telepot
+import javax.servlet.http.HttpServletRequest;
 
+import javax.servlet.http.HttpServletResponse;
 
-import time
-import telepot
-import RPi.GPIO as GPIO
-from telepot.loop import MessageLoop
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(20, GPIO.OUT)
+public class SimpleCal extends HttpServlet {
 
-def handle(msg):
-    chat_id = msg['chat']['id']
-    command = msg['text']
-    print('Got command: %s' % command)
-    bot.sendMessage(chat_id, "Command received");
+protected void service(HttpServletRequest request, HttpServletResponse response)
 
-    if command == '/on':
-        print('on')
-        GPIO.output(20, GPIO.HIGH)
-    elif command == '/off':
-        print('off')
-        GPIO.output(20, GPIO.LOW)
+throws ServletException, IOException {
 
-bot = telepot.Bot('HTTP-API')
-MessageLoop(bot, handle).run_as_thread()
-print('I am listening ...')
-while 1:
-    time.sleep(10)
+response.setContentType("text/html;charset=UTF-8");
 
-----------------------------------------------------------------------------------
+PrintWriter out = response.getWriter();
 
-####OCILOSCOPE
-pip install adafruit-ads1x15
+double num1,num2,result;
 
+String opt;
 
+num1=Double.parseDouble(request.getParameter("num1"));
 
+num2=Double.parseDouble(request.getParameter("num2"));
 
-import time
-import Adafruit_ADS1x15
+opt=request.getParameter("opt");
 
-adc = Adafruit_ADS1x15.ADS1115()
-GAIN = 1
+if(opt.equals("+"))
 
-print('Reading ADS1x15 values, press Ctrl-C to quit...')
-print('| {0:>6} | {1:>6} | {2:26} | {3:>6} |'.format(*range(4)))
-print('-'*37)
+result=num1+num2;
 
-while True:
-    values = [0]*4
-    for i in range(4):
-        values[i] = adc.read_adc(i, gain=GAIN)
-    print('| {0:>6} | {1:>6} | {2:>6} | {3:>6} |'.format(*values))
-    time.sleep(0.5)
+else if(opt.equals("-"))
 
- 
+result=num1-num2;
+
+else if(opt.equals("*"))
+
+result=num1*num2;
+
+else
+
+result=num1/num2;
+
+out.println("Result is = "+ result);
+
+}
+
+}
+
+OUTPUT:
+
+Part B.
+
+Aim: Create a servlet for a login page. If the username and password are correct then it says message “Hello <username>” else a message “login failed”.
+
+Steps for creating project and creating servlets are the same as Practical 1 Part A.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical1B
+
+Package Name: demoLogin
+
+Java File: LoginServlet.java
+
+Code:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Login Page</title>
+
+</head>
+
+<body>
+
+<form action="LoginServlet">
+
+Enter Username: <input type="text" name="uname"> <br> <br>
+
+Enter Password: <input type="password" name="psw"> <br> <br>
+
+<input type="submit" value="Login"> <input type="reset" value="Clear">
+
+</form>
+
+</body>
+
+</html>
+
+LoginServlet.java
+
+package demoLogin;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+public class LoginServlet extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+String uname, password;
+
+uname=request.getParameter("uname");
+
+password=request.getParameter("psw");
+
+if(uname.equals("admin") && password.equals("admin123"))
+
+out.println("Hello  "+uname);
+
+else
+
+out.println("Login Failed!");
+
+}
+
+}
+
+OUTPUT:
+
+Part C:
+
+AIM: Create a registration servlet in Java using JDBC. Accept the details such as Username, Password, Email, and Country from the user using HTML Form and store the registration details in the database.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical1C
+
+Package Name: demoReg
+
+Java File: RegPage.java
+
+STEPS:
+
+To add Jar File: Right Click on Libraries in your project  Select “Add JAR/Folder”
+
+Select the jar file.
+
+DATABASE CODE:
+
+create database demodb;
+
+use demodb;
+
+CREATE TABLE user (
+
+uname VARCHAR(25),
+
+password VARCHAR(8),
+
+email VARCHAR(30),
+
+country VARCHAR(15)
+
+);
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>User Registration</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<h1>Welcome to Registration Page</h1><br>
+
+<form action="RegPage">
+
+Enter User Name: <input type="text" name="username"><br> <br>
+
+Enter Password: <input type="password" name="password"><br> <br>
+
+Enter Email: <input type="email" name="email"><br> <br>
+
+Enter Country: <input type="text" name="country" value='India'><br> <br>
+
+<input type="reset">
+
+<input type="submit" value="REGISTER">
+
+</form>
+
+</body>
+
+</html>
+
+RegPage.java
+
+package demoReg;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import java.sql.*;
+
+public class RegPage extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+String username=request.getParameter("username");
+
+String psw=request.getParameter("password");
+
+String email=request.getParameter("email");
+
+String country=request.getParameter("country");
+
+try
+
+{
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/demoDB","root","root");
+
+PreparedStatement pst=con.prepareStatement("insert into user values(?,?,?,?)");
+
+pst.setString(1,username);
+
+pst.setString(2,psw);
+
+pst.setString(3,email);
+
+pst.setString(4,country);
+
+int row=pst.executeUpdate();
+
+if(row==1)
+
+{
+
+out.println("Data inserted successfully!");
+
+}
+
+else
+
+{
+
+out.println("Data could not be inserted.");
+
+}
+
+}
+
+catch(Exception e)
+
+{
+
+out.println(e);
+
+}
+
+}
+
+}
+
+OUTPUT:
+
+Practical No. 2
+
+Implement the following Servlet applications with Cookies and Sessions.
+
+Part A:
+
+AIM: Using Request Dispatcher Interface create a Servlet which will validate the password entered by the user, if the user has entered "Servlet" as password, then he will be forwarded to Welcome Servlet else the user will stay on the index.html page and an error message will be displayed.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical2A
+
+Package Name: demoRD
+
+Java File:
+
+LoginServlet.java
+
+WelcomeServlet.java
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Login Page</title>
+
+</head>
+
+<body>
+
+<form action="LoginServlet">
+
+Enter Username: <input type="text" name="uname"> <br> <br>
+
+Enter Password: <input type="password" name="psw"> <br> <br>
+
+<input type="submit" value="Login"> <input type="reset" value="Clear">
+
+</form>
+
+</body>
+
+</html>
+
+LoginServlet.java
+
+package demoRD;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.RequestDispatcher;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+public class LoginServlet extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+String uname, password;
+
+uname=request.getParameter("uname");
+
+password=request.getParameter("psw");
+
+if(password.equals("Servlet"))
+
+{
+
+RequestDispatcher rd=request.getRequestDispatcher("WelcomeServlet");
+
+rd.forward(request, response);
+
+}
+
+else
+
+{
+
+out.println("Login Failed!! Try Again...");
+
+RequestDispatcher rd=request.getRequestDispatcher("index.html");
+
+rd.include(request,response);
+
+}
+
+}
+
+}
+
+WelcomeServlet.java
+
+package demoRD;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+public class WelcomeServlet extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+String uname;
+
+uname=request.getParameter("txtUserName");
+
+out.println("Welcome "+uname);
+
+}
+
+}
+
+OUTPUT:
+
+Part B:
+
+AIM: Create a servlet that uses Cookies to store the number of times a user has visited servlet.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical2B
+
+Package Name: demoC
+
+Java File:
+
+Servlet1.java
+
+Servlet2.java
+
+Servlet3.java
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Cookies Demo</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body bgcolor="DeepSkyBlue">
+
+<form action="Servlet1" >
+
+Enter Your Name <input type="text" name="txtName"><br>
+
+<input type="submit" value="Click to Enter">
+
+</form>
+
+</body>
+
+</html>
+
+Servlet1.java
+
+package demoC;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.Cookie;
+
+public class Servlet1 extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("<html><head><title>Page1</title></head>");
+
+out.println("<body bgcolor=MediumSlateBlue>");
+
+String uname = request.getParameter("txtName");
+
+out.println("<h1>Welcome "+uname+"</h1>");
+
+Cookie ck1 = new Cookie("Username", uname);
+
+Cookie ck2 = new Cookie("Visit","1");
+
+Cookie ck3 = new Cookie("Color","Red");
+
+response.addCookie(ck1);
+
+response.addCookie(ck2);
+
+response.addCookie(ck3);
+
+out.println("<h1><a href=Servlet2>Click to Visit Page 2 </a></h1>");
+
+}
+
+}
+
+Servlet2.java
+
+package demoC;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.Cookie;
+
+public class Servlet2 extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("<html><head><title>Page2</title></head>");
+
+out.println("<body bgcolor=Aquamarine>");
+
+out.println("<h1> Welcome to Page 2 </h1>");
+
+Cookie [] ck = request.getCookies();
+
+for(int i=0;i<ck.length;i++)
+
+{
+
+if(ck[i].getName().equals("Visit"))
+
+{
+
+int count = Integer.parseInt(ck[i].getValue())+1;
+
+out.println("<h1>Visit No : "+count+"</h1>");
+
+ck[i] = new Cookie("Visit",count+"");
+
+response.addCookie(ck[i]);
+
+}
+
+else
+
+{
+
+out.println("<h1>"+ck[i].getName()+ " : "+ck[i].getValue()+"</h1>");
+
+}
+
+}
+
+out.println("<h1><a href=Servlet3>Click to visit Page 3 </a></h1>");
+
+}
+
+}
+
+Servlet3.java
+
+package demoC;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.Cookie;
+
+public class Servlet3 extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("<html><head><title>Page3</title></head>");
+
+out.println("<body bgcolor=PaleVioletRed>");
+
+out.println("<h1> Welcome to Page 3 </h1>");
+
+Cookie [] ck = request.getCookies();
+
+for(int i=0;i<ck.length;i++)
+
+{
+
+if(ck[i].getName().equals("Visit"))
+
+{
+
+int count = Integer.parseInt(ck[i].getValue())+1;
+
+out.println("<h1>Visit No : "+count+"</h1>");
+
+ck[i] = new Cookie("Visit",count+"");
+
+response.addCookie(ck[i]);
+
+}
+
+else
+
+{
+
+out.println("<h1>"+ck[i].getName()+ " : "+ck[i].getValue()+"</h1>");
+
+}
+
+}
+
+out.println("<h1><a href=Servlet2>Click to visit Page 2 </a></h1>");
+
+}
+
+}
+
+OUTPUT:
+
+Part C:
+
+AIM: Create a servlet demonstrating the use of session creation and destruction. Also check
+
+whether the user has visited this page first time or has visited earlier also using sessions.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical2C
+
+Package Name: demoS
+
+Java Files:
+
+Servlet1.java
+
+Servlet2.java
+
+Servlet3.java
+
+LogoutServlet.java
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Session Demo</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="Servlet1">
+
+Enter Username: <input type="text" name="txtName"><br/>
+
+<input type="submit" value="Submit">
+
+</form>
+
+</body>
+
+</html>
+
+Servlet1.java
+
+package demoS;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.HttpSession;
+
+import java.util.Date;
+
+public class Servlet1 extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("<html><head><title>Page 1</title></head>");
+
+HttpSession hs = request.getSession(true);
+
+if(hs.isNew())
+
+{
+
+out.println("<body bgcolor=cyan>");
+
+String name = request.getParameter("txtName");
+
+hs.setAttribute("uname", name);
+
+hs.setAttribute("visit", "1");
+
+out.println("<h1>Welcome for the first time</h1>");
+
+}
+
+else
+
+{
+
+out.println("<h1>Welcome Back to the Page</h1>");
+
+int visit = +Integer.parseInt((String)hs.getAttribute("visit"))+1;
+
+out.println("<h1>You have visited "+visit+" Times</h1>");
+
+hs.setAttribute("visit", visit+"");
+
+}
+
+hs.setMaxInactiveInterval(60*60);
+
+out.println("<h1>Your Session ID: " +hs.getId()+ "<br>Timeout:"+hs.getMaxInactiveInterval()+ "</h1>");
+
+out.println("<h1><br>Last Accessed Time: " +new Date(hs.getLastAccessedTime())+"<br>You Logged in at: "+new Date(hs.getCreationTime())+ "</h1>");
+
+out.println("<h1><a href=Servlet2>Click for Page 2 </a></h1>");
+
+out.println("<h1><a href=Servlet3>Click for Page 3 </a></h1>");
+
+out.println("<h1><a href=LogoutServlet>Click to Logout </a></h1>");
+
+}
+
+}
+
+Servlet2.java
+
+package demoS;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.HttpSession;
+
+import java.util.Date;
+
+public class Servlet2 extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("<html><head><title>Page 2</title></head>");
+
+out.println("<body bgcolor=red>");
+
+HttpSession hs1 = request.getSession(false);
+
+out.println("<h1>Welcome to Page No. 2</h1>");
+
+int visit = Integer.parseInt((String)hs1.getAttribute("visit"))+1;
+
+out.println("<h1>You have visited "+visit+" times</h1>");
+
+hs1.setAttribute("visit", ""+visit);
+
+out.println("<h1>Your Session ID "+hs1.getId()+"</h1>");
+
+out.println("<h1>You Logged in at "+new Date(hs1.getCreationTime()) +"</h1>");
+
+out.println("<h1><a href=Servlet1>Click for Page 1</a></h1>");
+
+out.println("<h1><a href=Servlet3>Click for Page 3</a></h1>");
+
+out.println("<h1><a href=LogoutServlet>Click to Logout</a></h1>");
+
+}
+
+}
+
+Servlet3.java
+
+package demoS;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.HttpSession;
+
+import java.util.Date;
+
+public class Servlet3 extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("<html><head><title>Page 3</title></head>");
+
+out.println("<body bgcolor=yellow>");
+
+HttpSession hs1 = request.getSession(false);
+
+out.println("<h1>Welcome to Page No. 3</h1>");
+
+int visit = Integer.parseInt((String)hs1.getAttribute("visit"))+1;
+
+out.println("<h1>You have visited "+visit+" times</h1>");
+
+hs1.setAttribute("visit", ""+visit);
+
+out.println("<h1>Your Session ID "+hs1.getId()+"</h1>");
+
+out.println("<h1>You Logged in at "+new java.util.Date(hs1.getCreationTime()) +"</h1>");
+
+out.println("<h1><a href=Servlet1>Click for Page 1</a></h1>");
+
+out.println("<h1><a href=Servlet2>Click for Page 2</a></h1>");
+
+out.println("<h1><a href=LogoutServlet>Click to Logout</a></h1>");
+
+}
+
+}
+
+LogoutServlet.java
+
+package demoS;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.HttpSession;
+
+public class LogoutServlet extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+HttpSession hs = request.getSession();
+
+if(hs != null)
+
+{
+
+hs.invalidate();
+
+}
+
+out.println("<h3>You are now logged out....To Re-join, kindly login again</h3>");
+
+}
+
+}
+
+OUTPUT:
+
+Practical No. 3
+
+Implement the Servlet IO and File applications.
+
+Part: This interface represents a part or form item that was received within a multipart/form-data POST request.
+
+Paths: java.nio.file.Paths class contains static methods for converting path string or URI into Path.
+
+OutputStream: The OutputStream class of the java.io package is an abstract superclass that represents an output stream of bytes.
+
+InputStream: InputStream class is the superclass of all the io classes i.e. representing an input stream of bytes. It represents input stream of bytes.
+
+ServletContext: Defines a set of methods that a servlet uses to communicate with its servlet container, for example, to get the MIME type of a file, dispatch requests, or write to a log file.
+
+Major Methods used:
+
+@MultipartConfig: To be written above the class. To handle multipart/form-data requests which contain file upload data. Servlets annotated with @MultipartConfig may retrieve the Part components of a given multipart/form-data request by calling getPart() or getParts().
+
+request.getPart("file"): getParts() method returns collections of all Part objects.
+
+filePart.getSubmittedFileName().toString(): Gets the file name specified by the client
+
+Paths.get(filename): Returns a Path by converting given strings into a Path.
+
+path1.getFileName(): used to return the name of the file or directory pointed by this path object.
+
+new FileOutputStream(new File(path+File.separator+dname)): Creates a new FileOutputStream object for a particular file.
+
+is=filePart.getInputStream(): Returns the instance of InputStream
+
+is.read():  reads the next byte of the data from the the input stream and returns int in the range of 0 to 255. If no byte is available because the end of the stream has been reached, the returned value is -1.
+
+response.setContentType("APPLICATION/OCTATE-STREAM"): Sets the content type of the response being sent to the client, if the response has not been committed yet.
+
+getServletContext(): returns the object of ServletContext.
+
+context.getResourceAsStream("/"+filename): is used to get the resource with the specified resource of this class. The method returns the specified resource of this class in the form of InputStream object.
+
+response.setHeader("Content-Diposition","attachment;filename=\""+filename+"\""): sets a response header with the given name and value.
+
+out.write(i): s used to write bytes to this output stream from the specified byte array.
+
+is.close(): closes this input stream and releases any system resources associated with this stream
+
+out.close(): closes this output stream and releases any system resources associated with this stream
+
+FileInputStream input = new FileInputStream ("D:\\testin.txt");
+
+ReadableByteChannel source = input.getChannel(): Returns an ReadableByteChannel object
+
+FileOutputStream output = new FileOutputStream ("D:\\testout.txt"): obtains input bytes from a . It is used for reading byte-oriented data (streams of raw bytes) such as image data, audio, video etc.
+
+WritableByteChannel destination = output.getChannel(): getChannel() method of FileOutputStream class is used to get the unique WritableByteChannel object associated with this file output stream.
+
+source.close(): Closes the source
+
+destination.close(): closes the destination
+
+buffer.flip(): used to flip this buffer. The limit is set to the current position and then the position is set to zero.
+
+src.read(buffer): is used to read a single character from the given buffered reader.
+
+ByteBuffer.allocateDirect(20 * 1024):  is used Allocates a new direct byte buffer. This method takes capacity, in bytes, as parameter. Return Value: This method returns the new byte buffer.
+
+buffer.hasRemaining(): is used to tell whether there are any elements between the current position and the limit. Returns: This method will return true if, and only if, there is at least one element remaining in this buffer.
+
+dest.write(buffer): Writes a sequence of bytes to this channel from the given buffer.
+
+buffer.clear(): makes a buffer ready for a new sequence of channel-read or relative put operations: It sets the limit to the capacity and the position to zero.
+
+Part A:
+
+AIM: Create a Servlet application to upload file.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical3A
+
+Package Name: demoUpload
+
+Java File: UploadServlet.java
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Upload File</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="UploadServlet" method="post" enctype="multipart/form-data">
+
+<h1>Uploading the file</h1>
+
+Select a file : <input type="file" name="file" id="file"><br>
+
+Destination : <input type="text" name="destination" value="" ><br>
+
+<input type="submit" value="UPLOAD" name="upload" id="upload">
+
+</form>
+
+</body>
+
+</html>
+
+UploadServlet.java
+
+package demoUpload;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.servlet.http.Part;
+
+import java.io.*;
+
+import java.nio.file.*;
+
+import javax.servlet.annotation.*;
+
+@MultipartConfig
+
+public class UploadServlet extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+String path=request.getParameter("destination");
+
+Part filePart=request.getPart("file");
+
+String filename=filePart.getSubmittedFileName();
+
+Path path1 = Paths.get(filename);
+
+Path dname = path1.getFileName();
+
+out.print("<br><br><hr> File Name: "+filename);
+
+OutputStream os=null;
+
+InputStream is=null;
+
+try
+
+{
+
+os=new FileOutputStream(new File(path+File.separator+dname));
+
+is=filePart.getInputStream();
+
+int read=0;
+
+while((read=is.read()) !=-1)
+
+{
+
+os.write(read);
+
+}
+
+out.println("<br><br><br><hr>File Uploaded Sucessfully...!!!");
+
+}
+
+catch(FileNotFoundException e)
+
+{
+
+out.print(e);
+
+}
+
+}
+
+}
+
+OUTPUT:
+
+Part B:
+
+AIM: Create a Servlet application to download files.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical3B
+
+Package Name: demoD
+
+Java File: DownloadServlet.java
+
+STEPS:  Copy the files in Web Pages folder in your project folder. It should look like:
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Download Files</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<h1>File Download Application</h1>
+
+<br><a href="DownloadServlet?filename=2A.txt">Download Text File </a><br>
+
+<a href="DownloadServlet?filename=1.png">Download Image</a><br>
+
+<a href="DownloadServlet?filename=Aims.pdf">Download PDF File </a> <br>
+
+</body>
+
+</html>
+
+DownloadServlet.java
+
+package demoD;
+
+import java.io.IOException;
+
+import java.io.InputStream;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletContext;
+
+import javax.servlet.ServletOutputStream;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+public class DownloadServlet extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+String filename=request.getParameter("filename");
+
+int lenght = 0;
+
+try (ServletOutputStream outputStream = response.getOutputStream())
+
+{
+
+ServletContext context = getServletConfig().getServletContext();
+
+response.setContentType((context.getMimeType(filename) != null) ? context.getMimeType(filename) : "application/pdf");
+
+response.setHeader("Content-Disposition", "attachment; filename=\"" + filename);
+
+InputStream inputStream = context.getResourceAsStream("/" + filename);
+
+byte[] bytes = new byte[1024];
+
+while((inputStream != null) && ((lenght = inputStream.read(bytes)) != -1))
+
+{
+
+outputStream.write(bytes, 0, lenght);
+
+}
+
+outputStream.flush();
+
+}
+
+catch(Exception e)
+
+{
+
+PrintWriter out=response.getWriter();
+
+out.println("e");
+
+}
+
+}
+
+}
+
+OUTPUT:
+
+Part C:
+
+AIM: Develop Simple Servlet Question Answer Application using Database.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical3C
+
+Package Name: demoQ
+
+Java File:
+
+QuizServlet.java,
+
+ShowResult.java
+
+CODE:
+
+DATABASE CODE:
+
+create database quiz;
+
+use quiz
+
+create table questions(qno int PRIMARY KEY, question varchar(200), opt1 varchar(30), opt2 varchar(30), opt3 varchar(30), opt4 varchar(30), ans varchar(30));
+
+insert into questions values(1, "What does EE Stand for in Java EE", "Express Edition", "Enterprise Edition", "Effective Edition", "Enforced Edition", "Enterprise Edition");
+
+insert into questions values(2, "Which of the Following is NOT a Servlet Lifecylce Method?", "init", "remove", "destroy", "service", "remove");
+
+insert into questions values(3, "Which of the following is an ORM tool?", "JSP", "CGI", "OpenAccess", "Hibernate", "Hibernate");
+
+insert into questions values(4, "Which of the following bean uses onMessage() Method?", "Stateful Bean", "Stateless Bean", "Message Driven Bean", "Singleton Bean", "Message Driven Bean");
+
+insert into questions values(5, "Which of the Following Class is used to store output from Query?", "Statement", "Query", "DriverManager", "ResultSet", "ResultSet");
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Quiz</title>
+
+</head>
+
+<body>
+
+<h1>Welcome to Quiz Servlet </h1>
+
+<h1><a href="QuizServlet" >CLICK TO START QUIZ</a></h1>
+
+</body>
+
+</html>
+
+QuizServlet.java
+
+package demoQ;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import java.sql.*;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+public class QuizServlet extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("<form action=ShowResult >");
+
+try {
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/quiz","root","root");
+
+Statement stmt = con.createStatement();
+
+ResultSet res = stmt.executeQuery("select * from questions");
+
+out.println("<table border=1 >");
+
+int qno=1;
+
+while(res.next())
+
+{
+
+out.println("<tr><td>"+res.getString(1)+"</td>");
+
+out.println("<td>"+res.getString(2)+"</td></tr>");
+
+String op1=res.getString(3);
+
+String op2=res.getString(4);
+
+String op3=res.getString(5);
+
+String op4=res.getString(6);
+
+out.println("<tr><td><input type=radio name="+qno+" value='"+op1+"'></td><td>"+op1+"</td></tr>");
+
+out.println("<tr><td><input type=radio name="+qno+" value='"+op2+"'></td><td>"+op2+"</td></tr>");
+
+out.println("<tr><td><input type=radio name="+qno+" value='"+op3+"'></td><td>"+op3+"</td></tr>");
+
+out.println("<tr><td><input type=radio name="+qno+" value='"+op4+"'></td><td>"+op4+"</td></tr>");
+
+qno++;
+
+}
+
+}
+
+catch(Exception e){out.println(e);}
+
+out.println("</table>");
+
+out.println("<input type=reset >");
+
+out.println("<input type=submit value=SUBMIT >");
+
+out.println("</form>");
+
+}
+
+}
+
+ShowResult.java
+
+package demoQ;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import java.sql.*;
+
+public class ShowResult extends HttpServlet {
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+try
+
+{
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/quiz","root","root");
+
+Statement stmt = con.createStatement();
+
+ResultSet res = stmt.executeQuery("select ans from questions");
+
+int count =0, qno=1;
+
+String uans, cans;
+
+while(res.next()){
+
+cans=res.getString(1);
+
+uans=request.getParameter(""+(qno));
+
+if(cans.equals(uans))
+
+{
+
+count++;
+
+out.println("<h1>Correct </h1>");
+
+qno++;
+
+}
+
+else
+
+{
+
+out.println("<h1>Incorrect </h1>");
+
+qno++;
+
+}
+
+}
+
+out.println("<h1>Your Score is "+count+" </h1>");
+
+}
+
+catch(Exception e){out.println(e);}
+
+}
+
+}
+
+OUTPUT:
+
+Part D:
+
+AIM: Create simple Servlet application to demonstrate Non-Blocking Read Operation.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical3D
+
+Package Name: demoNIO
+
+Java File: IONBServlet.java
+
+CODE:
+
+package demoIONB;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import java.io.*;
+
+import java.nio.*;
+
+import java.nio.channels.*;
+
+public class IONBServlet extends HttpServlet {
+
+public static void main(String args[]) throws IOException
+
+{
+
+FileInputStream input = new FileInputStream ("D:\\testin.txt");
+
+ReadableByteChannel source = input.getChannel();
+
+FileOutputStream output = new FileOutputStream ("D:\\testout.txt");
+
+WritableByteChannel destination = output.getChannel();
+
+copyData(source, destination);
+
+source.close();
+
+destination.close();
+
+}
+
+private static void copyData(ReadableByteChannel src, WritableByteChannel dest) throws IOException
+
+{
+
+ByteBuffer buffer = ByteBuffer.allocateDirect(20 * 1024);
+
+while (src.read(buffer) != -1)
+
+{
+
+buffer.flip();
+
+while (buffer.hasRemaining())
+
+{
+
+dest.write(buffer);
+
+}
+
+buffer.clear();
+
+System.out.println("Close");
+
+}
+
+}
+
+}
+
+OUTPUT:
+
+Practical No. 4
+
+Implement the following JSP applications.
+
+Part A:
+
+AIM: Develop a simple JSP application to display values obtained from the use of intrinsic objects of various types.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical4A
+
+JSP File: pract4a.jsp
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Intrinsic Objects </title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="pract4A.jsp">
+
+<h1>Welcome to Registration page</h1><br>
+
+Enter Username: <input type="text" name="txtName"><br>
+
+<input type="Submit" value="Submit">
+
+</form>
+
+</body>
+
+</html>
+
+pract4a.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+<h1>Use of Intrinsic Objects in JSP</h1>
+
+<h1>Use of Request Object</h1>
+
+Query String
+
+<%=request.getQueryString()%><br>
+
+Context Path: <%=request.getContextPath()%><br>
+
+Remote Host: <%=request.getRemoteHost()%><br>
+
+Request Parameter: <%=request.getParameter("txtName")%>
+
+Request URI: <%=request.getRequestURI()%> <br>
+
+<h1>Use of Response Object</h1>
+
+Character Encoding Type: <%=response.getCharacterEncoding() %><br>
+
+Content Type: <%=response.getContentType() %><br>
+
+Locale: <%=response.getLocale() %><br>
+
+<h1>Use of Session Object</h1>
+
+ID <%=session.getId() %><br>
+
+IS NEW <%=session.isNew()%><br>
+
+Create Time: <%=new java.util.Date(session.getCreationTime()) %><br>
+
+Last Access Time: <%=new java.util.Date(session.getLastAccessedTime()) %><br>
+
+<br>
+
+<h1>Use of Config Object</h1>
+
+Servlet Name: <%=config.getServletName()%> <br><br>
+
+<h1>Use of Application Object</h1>
+
+Server Info: <%=application.getServerInfo()%>
+
+<br><br>
+
+<h1>Use of Page Object </h1>
+
+Page Name:<%=page.getClass().getName()%>
+
+<br><br>
+
+<h1> Use of Page Context Object </h1>
+
+<%pageContext.setAttribute("color", "Blue");%>
+
+Class Name:<%=pageContext.getClass().getName()%> <br>
+
+Attribute Value:<%=pageContext.getAttribute("color")%>
+
+<br><br>
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Part B:
+
+AIM: Develop a simple JSP application to pass values from one page to another with
+
+validations. (Name-txt, age-txt, hobbies-checkbox, email-txt, gender-radio button).
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical4B
+
+JSP File: Validate.jsp, successful.jsp
+
+Package Name: mypack
+
+Bean Name: CheckerBean
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title> Register </title>
+
+</head>
+
+<body>
+
+<form action="Validate.jsp">
+
+Enter Your Name<input type="text" name="name" ><br>
+
+Enter Your Age<input type="number" name="age" ><br>
+
+Select Hobbies<input type="checkbox" name="hob" value="Singing">Singing
+
+<input type="checkbox" name="hob" value="Reading">Reading Books
+
+<input type="checkbox" name="hob" value="Football">Playing Football<br>
+
+Enter E-mail<input type="text" name="email" ><br>
+
+Select Gender<input type="radio" name="gender" value="male">Male
+
+<input type="radio" name="gender" value="female">Female
+
+<br>
+
+<input type="hidden" name="error" value="">
+
+<input type="submit" value="Submit Form">
+
+</form>
+
+</body>
+
+</html>
+
+Validate.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+<jsp:useBean id="obj" scope="request" class="mypack.CheckerBean" >
+
+<jsp:setProperty name="obj" property="*"/>
+
+</jsp:useBean>
+
+<%
+
+if (obj.validate())
+
+{
+
+%>
+
+<jsp:forward page="successful.jsp"/>
+
+<%
+
+}
+
+else {
+
+%>
+
+<jsp:include page="index.html"/>
+
+<%
+
+}
+
+%>
+
+<%=obj.getError() %>
+
+</body>
+
+</html>
+
+successful.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+<h1>Data Received!!!</h1>
+
+</body>
+
+</html>
+
+CheckerBean.java
+
+package mypack;
+
+import java.beans.*;
+
+import java.io.Serializable;
+
+import java.util.regex.Matcher;
+
+import java.util.regex.Pattern;
+
+public class CheckerBean
+
+{
+
+String name,hob,email,gender,error; int age;
+
+public CheckerBean()
+
+{
+
+name=""; hob=""; email=""; gender=""; error=""; age=0;
+
+}
+
+public void setName(String n)
+
+{
+
+name=n;
+
+}
+
+public String getName()
+
+{
+
+return name;
+
+}
+
+public void setAge(int a)
+
+{
+
+age=a;
+
+}
+
+public int getAge()
+
+{
+
+return age;
+
+}
+
+public void setHob(String h)
+
+{
+
+hob=h;
+
+}
+
+public String getHob()
+
+{
+
+return hob;
+
+}
+
+public void setEmail(String e)
+
+{
+
+email=e;
+
+}
+
+public String getEmail()
+
+{
+
+return email;
+
+}
+
+public void setGender(String g)
+
+{
+
+gender=g;
+
+}
+
+public String getGender()
+
+{
+
+return gender;
+
+}
+
+public String getError()
+
+{
+
+return error;
+
+}
+
+public boolean validate()
+
+{
+
+boolean res=true;
+
+if(name.trim().equals(""))
+
+{
+
+error+="<br>Enter First Name";
+
+res=false;
+
+}
+
+if(age<0||age>99)
+
+{
+
+error+="<br>Age Invalid";
+
+res=false;
+
+}
+
+String emailRegex = "^[\\w.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+
+boolean b = email.matches(emailRegex);
+
+if(!b)
+
+{
+
+error+="<br>email Invalid";
+
+res=false;
+
+}
+
+return res;
+
+}
+
+}
+
+OUTPUT:
+
+Part C:
+
+AIM: Create a registration and login JSP application to register and authenticate the user based on username and password using JDBC.
+
+FILE NAMES GIVEN:
+
+Project Name: Prcatical4C
+
+HTML File: index.html, Loginhtml.html
+
+JSP File: Registrationjsp.jsp, Loginjsp.jsp
+
+DATABASE CODE:
+
+Create database UserDetails;
+
+use UserDetails;
+
+create table RegistrationDetails(name varchar(30), email varchar(30), password varchar(8), country varchar(15));
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Registration Page</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="Registrationjsp.jsp" >
+
+<h1> New User Registration Page</h1>
+
+Enter User Name: <input type="text" name="txtName" ><br><br>
+
+Enter Email: <input type="text" name="txtEmail" ><br><br>
+
+Enter Password: <input type="password" name="txtPass1" ><br><br>
+
+Re-Enter Password: <input type="password" name="txtPass2" ><br><br>
+
+Enter Country: <input type="text" name="txtCon" ><br><br>
+
+<input type="reset" ><input type="submit" value="REGISTER" ><br><br>
+
+<a href="Loginhtml.html"> Click to Login</a>
+
+</form>
+
+</body>
+
+</html>
+
+Registrationjsp.jsp
+
+<%@page import="java.sql.*"%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+<h1>Registration JSP Page</h1>
+
+<%
+
+String uname=request.getParameter("txtName");
+
+String pass1 = request.getParameter("txtPass1");
+
+String pass2 = request.getParameter("txtPass2");
+
+String email = request.getParameter("txtEmail");
+
+String ctry = request.getParameter("txtCon");
+
+if(pass1.equals(pass2))
+
+{
+
+try{
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/UserDetails", "root", "root");
+
+PreparedStatement pstm = con.prepareStatement("insert into RegistrationDetails values (?,?,?,?)");
+
+pstm.setString(1, uname);
+
+pstm.setString(2, email);
+
+pstm.setString(3, pass1);
+
+pstm.setString(4, ctry);
+
+int row = pstm.executeUpdate();
+
+if(row==1)
+
+{
+
+out.println("Registration Successful");
+
+%>
+
+<br> <a href="Loginhtml.html"> Click to Login</a>
+
+<%
+
+}
+
+else
+
+{
+
+out.println("Registration Failed !!!!"); %>
+
+<jsp:include page="index.html" ></jsp:include>
+
+<%
+
+}
+
+}catch(Exception e){out.println(e);}
+
+}
+
+else
+
+{
+
+out.println("<h1>Password Mismatch</h1>");
+
+%>
+
+<jsp:include page="index.html" ></jsp:include>
+
+<%
+
+}
+
+%>
+
+</body>
+
+</html>
+
+Loginhtml.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Login Page</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="Loginjsp.jsp">
+
+Enter User Name <input type="text" name="txtName" ><br>
+
+Enter Password <input type="password" name="txtPass" ><br>
+
+<input type="reset" >
+
+<input type="submit" value="LOGIN" >
+
+</form>
+
+</body>
+
+</html>
+
+Loginjsp.jsp
+
+<%@page import="java.sql.*"%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+<%
+
+String uname=request.getParameter("txtName");
+
+String pass = request.getParameter("txtPass");
+
+try{
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection con = DriverManager.getConnection ("jdbc:mysql://localhost:3306/UserDetails", "root", "root");
+
+PreparedStatement stmt = con.prepareStatement("select password from RegistrationDetails where name=?");
+
+stmt.setString(1, uname);
+
+ResultSet rs = stmt.executeQuery();
+
+if(rs.next()){
+
+if(pass.equals(rs.getString(1)))
+
+{
+
+out.println("<h1>~~~ LOGIN SUCCESSFUL ~~~ </h1>");
+
+}
+
+else{
+
+out.println("<h1>User Name Does Not Exist !!!!!</h1>");
+
+%>
+
+<jsp:include page="index.html" ></jsp:include>
+
+<%
+
+}
+
+}
+
+}
+
+catch(Exception e)
+
+{
+
+out.println(e);
+
+}
+
+%>
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Practical No. 5
+
+Implement the following JSP JSTL and EL Applications.
+
+Part A:
+
+AIM: Create an html page with fields, eno, name, age, desg, salary. Now on submit this
+
+data to a JSP page which will update the employee table of database with matching eno.
+
+FILES USED:
+
+UpdateEmp.jsp
+
+CODE:
+
+DATABASE CODE:
+
+create database empdb;
+
+use empdb;
+
+create table employee(eno int(100) primary key, ename varchar(100),salary float(10,2),dept varchar(100));
+
+insert into employee values ('101', 'Bob',70000.00, 'Sales');
+
+insert into employee values ('102', 'Alice', 50000.00, 'Accounts');
+
+insert into employee values ('103', 'Tom', 60000.00, 'HR');
+
+insert into employee values ('104', 'Ron', 50000.00, 'Design');
+
+insert into employee values ('105', 'Harry', 30000.00, 'IT');
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Update Salary</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="UpdateEmp.jsp" >
+
+Enter Employee Number: <input type="text" name="txtEno" ><br><br>
+
+Enter Salary to update: <input type="text" name="txtSal" ><br><br>
+
+<input type="reset" >
+
+<input type="submit" value="Update Salary">
+
+</form>
+
+</body>
+
+</html>
+
+UpdateEmp.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%@page import="java.sql.*"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Update Salary</title>
+
+</head>
+
+<body>
+
+<h1>Updating Employee Record</h1>
+
+<%
+
+String eno = request.getParameter("txtEno");
+
+String sal = request.getParameter("txtSal");
+
+try{
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/empdb","root","root");
+
+PreparedStatement pst = con.prepareStatement("update employee set salary=? where eno=?");
+
+pst.setString(1,sal);
+
+pst.setString(2,eno);
+
+int r = pst.executeUpdate();
+
+if(r==1)
+
+{
+
+out.println("Record Updated");
+
+}
+
+else
+
+{
+
+out.println("Could not be updated");
+
+}
+
+}catch(Exception e)
+
+{
+
+out.println("Exception " +e);
+
+}
+
+%>
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Part B:
+
+AIM: Create a JSP page to demonstrate the use of Expression language.
+
+FILES USED: index.jsp, ExpLang.jsp
+
+CODE:
+
+index.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+<h1>Welcome to index page</h1>
+
+<%
+
+Cookie ck=new Cookie("color","Blue");
+
+response.addCookie(ck);
+
+%>
+
+<%
+
+application.setAttribute("name","Aditi");
+
+session.setAttribute("country","India");
+
+%>
+
+<form action="ExpLang.jsp">
+
+Enter Name:<input type="text" name="name" /><br/><br/>
+
+<input type="submit" value="Submit"/>
+
+</form>
+
+</body>
+
+</html>
+
+ExpLang.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+<h1>Accessing Attribute: Application Level </h1>
+
+Welcome ${ applicationScope.name }
+
+<h1>Accessing Attributes: Session Level </h1>
+
+Country of Residence:  ${ sessionScope.country}
+
+<h1>Accessing Cookie </h1>
+
+Cookie Color has Value: ${cookie.color.value}
+
+<h1> Arithmetic Operators </h1>
+
+5*5+4: ${5*5+4} <br>
+
+1.4E4+1.4: ${1.4E4+1.4}<br>
+
+10 mod 4: ${10 mod 4}<br>
+
+15 div 3: ${15 div 3}<br>
+
+<h1> Logical Operators </h1>
+
+true and true: ${true and true}<br>
+
+true && false: ${true && false}<br>
+
+true or true: ${true or true}<br>
+
+true || false: ${true || false}<br>
+
+not true: ${not true}<br>
+
+!false: ${!false}
+
+<h1>Relational Operators</h1>
+
+10.0==10: ${10.0==10} <br>
+
+10.0 eq 10: ${10.0 eq 10} <br>
+
+((20*10)!= 200): ${((20*10)!= 200)} <br>
+
+3 ne 3: ${3 ne 3} <br>
+
+3.2>=2: ${3.2>=2} <br>
+
+3.2 ge 2: ${3.2 ge 2} <br>
+
+2<3: ${2<3} <br>
+
+4 lt 6: ${4 lt 6} <br>
+
+2 <= 4: ${2 <= 4} <br>
+
+4 le 2: ${4 le 2} <br>
+
+<h1>Conditional Operator</h1>
+
+The result of 100>200 is: "${(100>200)?'greater':'lesser'}"
+
+<H1>Empty Operator Example</H1>
+
+The Value for the Empty operator--> "empty "data" " is :: ${empty "data"} <br>
+
+The Value for the Empty operator--> "empty """ is:: ${empty ""}
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Part C:
+
+AIM: Create a JSP application to demonstrate the use of JSTL.
+
+FILES USED: JSTLDemo.jsp
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>JSTL Demo</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action ="JSTLDemo.jsp">
+
+User First Name:<input type="text" name="ufname"><br/> <br/>
+
+User Last Name:<input type="text" name="ulname"><br/> <br/>
+
+Enter any number: <input type="number" name="input"/><br> <br/>
+
+<input type="submit"><br/>
+
+</form>
+
+</body>
+
+</html>
+
+JSTLDemo.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%@taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>JSP Page</title>
+
+</head>
+
+<body>
+
+First Name: <b><c:out value="${param.ufname}"></c:out></b><br>
+
+Last Name: <b><c:out value="${param.ulname}"></c:out></b><br> <br>
+
+Use of Set:
+
+<c:set var="mycount" value="750"></c:set>
+
+<c:out value="${mycount}"> </c:out> <br> <br>
+
+Use of If:
+
+<c:out value="${param.input}"></c:out>
+
+<c:if test="${param.input ge 25}">
+
+<b><c:out value="Your Count is greater than or equal to 25"></c:out></b>
+
+</c:if> <br> <br>
+
+Use of Choose, When and Otherwise: <br>
+
+<c:choose>
+
+<c:when test = "${param.input < 25}">
+
+<c:out value="Your Count is less than 25"></c:out>
+
+</c:when>
+
+<c:when test = "${param.input > 25}">
+
+<c:out value="Your Count is greater than  25"></c:out>
+
+</c:when>
+
+<c:otherwise>
+
+<c:out value="Your Count is equal to 25"></c:out>
+
+</c:otherwise>
+
+</c:choose>
+
+<br> Use of For Each:
+
+<c:forEach var="count" begin="2" end="20" step="2">
+
+<b> <c:out value="${count}"></c:out> </b>
+
+</c:forEach>
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Practical No. 6
+
+Implement the following EJB Applications.
+
+Part A:
+
+AIM: Create a Currency Converter application using EJB.
+
+FILE NAMES GIVEN:
+
+Servlet:
+
+Package Name: demoServlet
+
+Class Name: CCServlet
+
+EJB:
+
+Package Name: mybean
+
+Class Name: CCBean
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Currency Convertor</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<center>
+
+<form action="CCServlet" >
+
+Enter Amount <input type="text" name="amt"><br> <br>
+
+Select Conversion Type
+
+<input type="radio" name="type" value="r2d" checked>Rupees to Dollar
+
+<input type="radio" name="type" value="d2r" >Dollar to Rupees<br> <br> <br>
+
+<input type="reset" >       <input type="submit" value="CONVERT" > <br> <br>
+
+</form>
+
+</center>
+
+</body>
+
+</html>
+
+CCServlet.java
+
+package demoServlet;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.ejb.EJB;
+
+import mybean.CCBean;
+
+public class CCServlet extends HttpServlet {
+
+@EJB mybean.CCBean obj;
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+double amt = Double.parseDouble(request.getParameter("amt"));
+
+if(request.getParameter("type").equals("r2d"))
+
+{
+
+out.println("<h1>"+amt+ " Rupees = "+obj.r2Dollor(amt)+" Dollors</h1>");
+
+}
+
+if(request.getParameter("type").equals("d2r"))
+
+{
+
+out.println("<h1>"+amt+ " Dollors = "+obj.d2Rupees(amt)+" Rupees</h1>");
+
+}
+
+}
+
+}
+
+CCBean.java
+
+package mybean;
+
+import javax.ejb.Stateless;
+
+@Stateless
+
+public class CCBean {
+
+public CCBean(){}
+
+public double r2Dollor(double r){ return r/85.49; }
+
+public double d2Rupees(double d){ return d*85.49; }
+
+}
+
+OUTPUT:
+
+Part B:
+
+AIM: Develop simple EJB application to demonstrate Servlet Hit count using Singleton
+
+Session Beans.
+
+FILE NAMES GIVEN:
+
+Servlet:
+
+Package Name: demoCounter
+
+Class Name: CounterServlet
+
+EJB:
+
+Package Name: mybean
+
+Class Name: CounterBean
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Hit Counter</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<h1> Welcome </h1> <br><br>
+
+<form action="CounterServlet">
+
+<input type="submit" value="Check Hit Count">
+
+</form>
+
+</body>
+
+</html>
+
+CounterServlet.java
+
+package demoCounter;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.ejb.EJB;
+
+import mybean.CounterBean;
+
+public class CounterServlet extends HttpServlet {
+
+@EJB mybean.CounterBean obj;
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+out.println("Hit Count : " + obj.getCount());
+
+}
+
+}
+
+CounterBean.java
+
+package mybean;
+
+import javax.ejb.Singleton;
+
+@Singleton
+
+public class CounterBean {
+
+public CounterBean(){}
+
+private int hitcount=0;
+
+public int getCount()
+
+{
+
+hitcount=hitcount+1;
+
+return hitcount;
+
+}
+
+}
+
+OUTPUT:
+
+Part C:
+
+Aim: Develop simple Marks Entry Application to demonstrate accessing Database using
+
+EJB.
+
+FILE NAMES GIVEN:
+
+Servlet:
+
+Package Name: demoM
+
+Class Name: MarksEntry.java
+
+EJB:
+
+Package Name: mybean
+
+Class Name: MarksBean.java
+
+DATABASE CODE:
+
+create database StudentMarks;
+
+use StudentMarks
+
+create table stdmarks(name varchar(30) PRIMARY KEY, marks1 int, marks2 int, marks3 int, marks4 int, marks5 int, totalmarks int);
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Marks Entry</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="MarksEntry">
+
+<center>
+
+<h2>Student Details</h2><br>
+
+Enter Student Name: <input type="text" name="txtName"><br><br>
+
+Enter Subject 1 Marks: <input type="text" name="marks1"><br><br>
+
+Enter Subject 2 Marks: <input type="text" name="marks2"><br><br>
+
+Enter Subject 3 Marks: <input type="text" name="marks3"><br><br>
+
+Enter Subject 4 Marks: <input type="text" name="marks4"><br><br>
+
+Enter Subject 5 Marks: <input type="text" name="marks5"><br><br>
+
+<input type="submit" value="Insert"> <input type="reset" value="Clear">
+
+</center>
+
+</form>
+
+</body>
+
+</html>
+
+MarksEntry.java
+
+package demoM;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.ejb.EJB;
+
+import mybean.MarksBean;
+
+public class MarksEntry extends HttpServlet {
+
+@EJB mybean.MarksBean obj;
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+String msg="";
+
+String Studname=request.getParameter("txtName");
+
+int marks1=Integer.parseInt(request.getParameter("marks1"));
+
+int marks2=Integer.parseInt(request.getParameter("marks2"));
+
+int marks3=Integer.parseInt(request.getParameter("marks3"));
+
+int marks4=Integer.parseInt(request.getParameter("marks4"));
+
+int marks5=Integer.parseInt(request.getParameter("marks5"));
+
+int totalmarks=marks1+marks2+marks3+marks4+marks5;
+
+msg=obj.marksEntry(Studname,marks1,marks2,marks3,marks4,marks5,totalmarks);
+
+out.println(msg);
+
+}
+
+}
+
+MarksBean.java
+
+package mybean;
+
+import javax.ejb.Stateless;
+
+import java.sql.*;
+
+@Stateless
+
+public class MarksBean {
+
+public String marksEntry(String name,int mrk1, int mrk2,int mrk3, int mrk4, int mrk5, int total)
+
+{
+
+String confirmationMsg="";
+
+try {
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection   con=DriverManager.getConnection("jdbc:mysql://localhost:3306/StudentMarks", "root","root");
+
+PreparedStatement pstm=con.prepareStatement("insert into stdmarks value(?,?,?,?,?,?,?)");
+
+pstm.setString(1,name);
+
+pstm.setInt(2,mrk1);
+
+pstm.setInt(3,mrk2);
+
+pstm.setInt(4,mrk3);
+
+pstm.setInt(5, mrk4);
+
+pstm.setInt(6, mrk5);
+
+pstm.setInt(7,total);
+
+int r=pstm.executeUpdate();
+
+if(r==1)
+
+{
+
+confirmationMsg=" <h2><b> Marks of Student Name: " + name + "  have been updated successfully</b><h2>";
+
+}
+
+}
+
+catch(Exception e)
+
+{
+
+confirmationMsg=e.toString();
+
+}
+
+return confirmationMsg;
+
+}
+
+}
+
+OUTPUT:
+
+Practical No. 7
+
+Implement the following EJB applications with different types of Beans.
+
+Stateful Session Bean:
+
+A Stateful Session EJB is a server-side object designed to hold data on behalf of a particular client.
+
+Stateful session beans hold conversations for multiple client-invoked method calls. Stateful session beans provide an easy and robust way to handle conversational state.
+
+In case of a stateful client, a client's call creates an instance of session bean to serve only that client.
+
+Conversation with a Stateful session bean begins when the client calls a method on that bean. The conversation state in the bean must be available for that same client's next method request. Therefore stateful session beans cannot be pooled.
+
+A Stateful Session Bean is thus designed to service business processes that span multiple method requests or transactions.
+
+Stateful Session Beans should be used to store session-oriented data. Session-oriented data is used to track a multi-request sequence, ordering or any associated data that is part of a sequence.
+
+An example of a Stateful Session Bean is a shopping cart. Each time a user adds a product, a method invocation occurs and a request is sent to the bean instance. The bean executes the logic and saves the current result.
+
+When the user checks out, the final result [in this case the total cost of the cart] is given. The focus here is on tracking the user requests until checkout is performed which may be after many requests. And tracking a user across requests is the forte of Stateful Session Beans.
+
+Stateful session beans are appropriate if:
+
+The bean's state represents the interaction between the bean and a specific client
+
+The bean needs to hold information about the client across method invocations
+
+Diagram 32.1.1 demonstrates the stages that a stateful session bean passes through during its lifetime.
+
+The client initiates the lifecycle by obtaining a reference to a stateful session bean.
+
+The container performs any dependency injection and then invokes the method annotated with @PostConstruct [if any]. The bean is now ready to have its business methods invoked by the client.
+
+While in the ready stage, the EJB container may decide to deactivate or passivate the bean by moving it from memory to secondary storage.
+
+The EJB container invokes the method annotated @PrePassivate [if any] immediately before passivating it.
+
+If a client invokes a business method on the bean while it is in the passive stage, the EJB container activates the bean, calls the method annotated @PostActivate [if any] and then moves it to the ready stage.
+
+At the end of the lifecycle, the client invokes a method annotated @Remove and the EJB container calls the method annotated @PreDestroy [if any]. The bean's instance is then ready for garbage collection.
+
+The code spec controls the invocation of only one lifecycle method i.e. the method annotated @Remove. All other methods shown in diagram 32.1.1 are invoked by the EJB container.
+
+Example:
+
+@EJB in the Servlet Class: [After starting the class but before the service method]
+
+@EJB BeanClassName objectName;
+
+For Room Reservation
+
+@EJB RoomRBean obj;
+
+Import following files in Servlet:
+
+import javax.ejb.EJB;
+
+import packageName.BeanClassName;
+
+Example: For Room Reservation we will import:
+
+import javax.ejb.EJB;
+
+import mybean.RoomRBean;
+
+Message Driven Bean:
+
+A Message Driven Bean is an EJB enterprise bean component that functions as an asynchronous message consumer.
+
+Message driven beans has no client-specific state but may contain message-handling state such as an open database connection or object references to another EJB.
+
+A client uses a message driven bean to send messages to the destination for which the bean is a message listener.
+
+Message driven beans are:
+
+Stateless
+
+Server-side
+
+Transaction-aware components for processing asynchronous JMS messages.
+
+A message driven bean acts as a message consumer in the JMS messaging system.
+
+Message driven beans receive messages from a JMS Queue or Topic and perform business logic based on the message contents.
+
+EJB deployers create listeners to a Queue or Topic at deployment time and the server automatically creates and removes message driven bean instances as needed to process incoming messages.
+
+A message driven bean allows Java EE applications to receive JMS messages asynchronously. This means messages are exchanged in such a way that senders are independent of receivers. The sender sends the message and does not need to wait for the receiver to receive or process the message.
+
+A Java client, an enterprise bean, a JSP component or a non-Java EE application may send the message. The client sending the message to the destination need not be aware of the MDBs deployed in the EJB Container. However, the message must conform to JMS specifications.
+
+Message driven beans:
+
+Are components that receive inbound messages from a JMS provider
+
+Process messages that are received
+
+Contain business logic for handling received messages to perform the operations such as: Computation / Calculation
+
+Initiating a step in a workflow
+
+Storing data
+
+Sending another message
+
+Transfer data with another EJB for further processing
+
+Are message listeners, consuming messages from a JMS destination such as queue or a topic
+
+May invoke other EJB components to get some help
+
+A message-driven bean's instances retain no data or conversational state for a specific client i.e. they are stateless.
+
+A single message-driven bean can process messages from multiple clients.
+
+They are invoked asynchronously.
+
+They can be transaction-aware.
+
+They do not represent directly shared data in the database, but they can access and update this data.
+
+A message-driven bean has only a bean class i.e. unlike a session bean, the clients don't access message-driven beans through interfaces.
+
+They don't have the remote or local interfaces that define client access.
+
+Technically, message driven beans are similar to Stateless Session Beans. They have the same life cycle as stateless session beans. Its instances are relatively short-lived, retain no state for a specific client and several instances may be running at the same time.
+
+Message Driven Beans are used:
+
+To have asynchronous messaging in the application
+
+To have messages automatically delivered. Automatic message delivery avoids pooling for messages
+
+To integrate two applications in a loosely-coupled but reliable manner
+
+To create message selectors. A message selector is designed to take on only specific messages, thus making it possible to use Message Driven Beans as triggers
+
+Any Message Driven Bean must meet the following requirements:
+
+It must implement the message listener interface for the message type it supports. A bean that supports the JMS API implements javax.jms.MessageListener
+
+It must be annotated with @MessageDriven annotation if it does not use a deployment descriptor
+
+The class must be defined as public
+
+The class cannot be defined as abstract or final
+
+It must contain a public constructor with no arguments
+
+It must not define the finalize method
+
+Unlike session beans and entities, Message Driven Beans do not have the remote or local interfaces that define client access. Client components do not locate Message Driven Beans and invoke methods on them. Although Message Driven Beans do not have business methods, they may contain helper methods that are invoked internally by onMessage().
+
+Additionally, a Message Driven Bean may also implement any optional lifecycle callback methods annotated as: @PostConstruct,  @PreDestroy
+
+Diagram demonstrates the stages in the lifecycle of a message driven bean.
+
+The EJB container usually creates a pool of message driven bean instances.
+
+For each instance, the EJB container performs these tasks:
+
+If the message driven bean uses dependency injection, the container injects these references before instantiating the instance
+
+The container calls the method annotated @PostConstruct [if any]
+
+Like a stateless session bean, a message driven bean is never passivated and it has only two states:
+
+Nonexistent
+
+And
+
+Ready to receive messages
+
+When a message arrives in the ready to receive messages state, the container calls the message driven bean's onMessage() to process the message. onMessage() normally casts the message to one of the five JMS message types and handles it in accordance with the application's business logic.
+
+At the end of the lifecycle, the container calls the method annotated @PreDestroy [if any]. The bean's instance is then ready for garbage collection.
+
+The onMessage() Method
+
+In Message Driven Beans, metadata annotations are used to specify the bean type. In this case, @MessageDriven specifies the destination monitored by this message driven bean.
+
+The bean class need not implement the javax.ejb.MessageDriven Bean interface.
+
+The bean class implements the MessageListener interface, which defines only one method named onMessage(), which takes javax.jms.Message as an argument.
+
+Every Message Driven Bean is associated to a JMS destination i.e. a Queue for point to point messaging or a Topic for publish/subscribe.
+
+onMessage() is activated on the reception of messages sent by a client application to the corresponding JMS destination.
+
+The developer implements onMessage() for a message driven bean.
+
+onMessage() contains the business logic that the message driven bean executes upon receipt of a message.
+
+onMessage can call helper methods or it can invoke a session bean to process the information in the message or to store it in a database.
+
+Part A:
+
+AIM: Develop a Simple Room Reservation System Application Using EJB.
+
+FILE NAMES GIVEN:
+
+Servlet:
+
+Package Name: demoR
+
+Class Name: RServlet.java
+
+EJB:
+
+Package Name: mybean
+
+Class Name: RoomRBean.java
+
+DATABASE CODE:
+
+create database HotelMgt;
+
+use HotelMgt;
+
+create table roomdetails(RoomId varchar(4) PRIMARY KEY, RoomType varchar(20), charges float(7,2), cust varchar(20), mob varchar(20) , status varchar(10));
+
+insert into roomDetails values('2003','Suit',9500.00,'','','Not Booked');
+
+insert into roomDetails values('1001','Delux',5000.00,'','','Not Booked');
+
+insert into roomDetails values('1002','Super Delux',7000.00,'','','Not Booked');
+
+insert into roomDetails values('1003','Suit',9500.00,'','','Not Booked');
+
+insert into roomDetails values('2001','Delux',5000.00,'','','Not Booked');
+
+insert into roomDetails values('2002','Super Delux',7000.00,'','','Not Booked');
+
+CODE:
+
+index.html
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Room Reservation</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<form action="RServlet" >
+
+Select a room Type
+
+<input type="radio" name="txtType" value="Delux">Delux
+
+<input type="radio" name="txtType" value="Super Delux">Super Delux
+
+<input type="radio" name="txtType" value="Suit">Suit<br>
+
+Enter Your Name<input type="text" name="txtCust" ><br>
+
+Enter Mobile No.<input type="text" name="txtMob" ><br>
+
+<input type="reset" >
+
+<input type="submit" value="Book Room">
+
+</form>
+
+</body>
+
+</html>
+
+RServlet.java
+
+package demoR;
+
+import java.io.IOException;
+
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.http.HttpServletRequest;
+
+import javax.servlet.http.HttpServletResponse;
+
+import javax.ejb.EJB;
+
+import mybean.RoomRBean;
+
+public class RServlet extends HttpServlet {
+
+@EJB RoomRBean obj;
+
+protected void service(HttpServletRequest request, HttpServletResponse response)
+
+throws ServletException, IOException {
+
+response.setContentType("text/html;charset=UTF-8");
+
+PrintWriter out = response.getWriter();
+
+String rtype=request.getParameter("txtType");
+
+String custn=request.getParameter("txtCust");
+
+String custm=request.getParameter("txtMob");
+
+String msg = obj.roomBook(rtype, custn, custm);
+
+out.println(msg);
+
+}
+
+}
+
+RoomRBean.java
+
+package mybean;
+
+import javax.ejb.Stateless;
+
+import java.sql.*;
+
+@Stateless
+
+public class RoomRBean {
+
+public RoomRBean(){}
+
+public String roomBook(String rt, String cn, String cm){
+
+String msg="";
+
+try{
+
+Class.forName("com.mysql.jdbc.Driver");
+
+Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelMgt","root","root");
+
+String query="select * from roomdetails where RoomType=? and status='Not Booked'";
+
+PreparedStatement pst = con.prepareStatement(query);
+
+pst.setString(1,rt);
+
+ResultSet rs= pst.executeQuery();
+
+if(rs.next()){
+
+String rno=rs.getString(1);
+
+PreparedStatement stm1 = con.prepareStatement("update roomdetails set cust=? where RoomId=? ");
+
+PreparedStatement stm2 = con.prepareStatement("update roomdetails set mob=? where RoomId=? ");
+
+PreparedStatement stm3 = con.prepareStatement("update roomdetails set status=? where RoomId=? ");
+
+stm1.setString(1,cn); stm1.setString(2,rno);
+
+stm2.setString(1,cm); stm2.setString(2,rno);
+
+stm3.setString(1, "Booked"); stm3.setString(2,rno);
+
+stm1.executeUpdate();
+
+stm2.executeUpdate();
+
+stm3.executeUpdate();
+
+msg = "Room "+rno+ " Booked <br> Charges = "+rs.getString(3);
+
+}
+
+else
+
+{
+
+msg = "Room "+rt+ " currently Not available";
+
+}
+
+}
+
+catch(Exception e) {msg=e.toString();}
+
+return msg;
+
+}
+
+}
+
+OUTPUT:
+
+Part B:
+
+AIM: Develop simple shopping cart application using EJB [Stateful Session Bean].
+
+FILE NAMES GIVEN:
+
+Project Name: ShoppingCart1
+
+index.jsp
+
+Package Name: mybean
+
+Bean Name: ShoppingCart.java
+
+CODE:
+
+index.jsp
+
+<%@page import="java.util.Iterator, java.util.List, javax.naming.InitialContext, mybean.ShoppingCart"%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<%!
+
+private static ShoppingCart cart;
+
+public void jspInit() {
+
+try {
+
+InitialContext ic = new InitialContext();
+
+cart = (ShoppingCart) ic.lookup("java:global/ShoppingCart1/ShoppingCart");
+
+}
+
+catch (Exception e) {System.out.println(e.toString());
+
+}
+
+}
+
+%>
+
+<%
+
+if(request.getParameter("txtCustomerName") != null) {
+
+cart.initialize(request.getParameter("txtCustomerName"));
+
+} else {
+
+cart.initialize("Guest");
+
+}
+
+if (request.getParameter("btnRmvBook") != null) {
+
+String books[] = request.getParameterValues("chkBook");
+
+if (books != null) {
+
+for (int i=0; i<books.length; i++) {
+
+cart.removeBook(books[i]);
+
+}
+
+}
+
+}
+
+if (request.getParameter("btnAddBook") != null) {
+
+String books[] = request.getParameterValues("chkBook");
+
+if (books != null) {
+
+for (int i=0; i<books.length; i++) {
+
+cart.addBook(books[i]);
+
+}
+
+}
+
+}
+
+%>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Book Selection</title>
+
+</head>
+
+<body style="background-color: lightseagreen;">
+
+<h1 style="text-align: center;">Books For Sale</h1><br>
+
+<form name="frmBooks" method="post">
+
+Customer: <input type="text" name="txtCustomerName" value=<%= request.getParameter("txtCustomerName")%> />
+
+<br>
+
+<hr>
+
+<h3> <b>Book Titles</b>  <br> <hr>
+
+<input type="checkbox" name="chkBook" value="Harry Potter and the Sorcerers Stone">Harry Potter and the Sorcerers Stone</td>
+
+<br>  <input type="checkbox" name="chkBook" value="Harry Potter and the Chamber of Secrets"> Harry Potter and the Chamber of Secrets</td>
+
+<br><input type="checkbox" name="chkBook" value="Harry Potter and the Prisoner of Azkaban"> Harry Potter and the Prisoner of Azkaban</td>
+
+<br><input type="checkbox" name="chkBook" value="Nothing Lasts Forever">Nothing Lasts Forever</td>
+
+<br><input type="checkbox" name="chkBook" value="The Sands of Time">The Sands of Time</td>
+
+<br><input type="checkbox" name="chkBook" value="Are You Afraid of Dark">Are You Afraid of Dark</td>
+
+<br><input type="checkbox" name="chkBook" value="Alchemist">Alchemist</td>
+
+<br><input type='submit' value='Add To My Basket' name='btnAddBook'>
+
+<br><input type='submit' value='Remove From My Basket' name='btnRmvBook'>
+
+<br><hr>   </h3>
+
+<u><h1> Basket:</h1></u> <br>
+
+<hr>
+
+<%
+
+if(cart!=null){
+
+List<String> bookList = cart.getContents();
+
+Iterator iterator = bookList.iterator();
+
+while (iterator.hasNext()) {
+
+String title = (String) iterator.next();
+
+%>
+
+<h3> <%= title %> </h3> <br>
+
+<%
+
+}
+
+}
+
+%>
+
+</form>
+
+</body>
+
+</html>
+
+ShoppingCart.java
+
+package mybean;
+
+import javax.ejb.Stateful;
+
+import java.sql.*;
+
+import java.util.*;
+
+import javax.ejb.Remove;
+
+@Stateful
+
+public class ShoppingCart {
+
+List<String> contents;
+
+String customerName;
+
+private Connection conn = null;
+
+private ResultSet rs;
+
+private Statement stmt = null;
+
+private String query = null;
+
+public void initialize(String person) {
+
+if (person != null) {
+
+customerName = person;
+
+try {
+
+Class.forName("com.mysql.jdbc.Driver").newInstance();
+
+conn = DriverManager.getConnection("jdbc:mysql://localhost/Cart", "root", "root");
+
+}
+
+catch(Exception e) {System.out.println(e.toString()); }
+
+}
+
+contents = new ArrayList<>();
+
+}
+
+public void addBook(String title) {
+
+try {
+
+stmt = conn.createStatement();
+
+query = "INSERT INTO Cart VALUES('" + customerName + "','" + title + "')";
+
+stmt.executeUpdate(query);
+
+}
+
+catch(SQLException e){System.out.println(e.toString());}
+
+}
+
+public void removeBook(String title) {
+
+try {
+
+stmt = conn.createStatement();
+
+query = "DELETE FROM Cart WHERE UserName='" + customerName + "' AND ItemName='" + title + "'";
+
+stmt.executeUpdate(query);
+
+}
+
+catch(SQLException e) {System.out.println(e.toString());
+
+}
+
+}
+
+public List<String> getContents() {
+
+try {
+
+stmt = conn.createStatement();
+
+query = "SELECT * FROM Cart WHERE UserName='" + customerName + "'";
+
+rs = stmt.executeQuery(query);
+
+while(rs.next()) {
+
+contents.add(rs.getString("ItemName"));
+
+}
+
+}
+
+catch(SQLException e) { System.out.println(e.toString());
+
+}
+
+return contents;
+
+}
+
+@Remove()
+
+public void remove() {
+
+contents = null;
+
+}
+
+}
+
+OUTPUT:
+
+Part C:
+
+AIM: Develop simple visitor Statistics application using Message Driven Bean [Stateless
+
+Session Bean].
+
+FILE NAMES GIVEN:
+
+Project Name: VisitorStatisticsMessageDriven
+
+index.jsp
+
+Package Name: ejb
+
+Bean Name: BasicMessageBean.java, VisitorStatBean.java
+
+Steps for creating project is same as Practical 1 Part A, steps to create MessageDriven Bean file are as follows,
+
+Right click on the project → click on new & others → Select Enterprise JavaBeans (MessageDriven Bean) → click on next.
+
+Name the EJB File to ‘BasicMessageBean’ with Package name as ‘ejb’ → select Project Destinations ‘jms/Queue’ → click on finish.
+
+Click on finish
+
+CODE:
+
+DATABASE CODE:
+
+create database visitorstats;
+
+use visitorstats;
+
+create table userstats(hostname varchar(30) PRIMARY KEY, visits int);
+
+index.jsp
+
+<%@page import="javax.jms.JMSException, javax.naming.InitialContext, javax.jms.TextMessage, javax.jms.MessageProducer, javax.jms.Session, javax.jms.Connection, javax.jms.Queue, javax.jms.ConnectionFactory" %>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<%!
+
+private static ConnectionFactory connectionFactory;
+
+private static Queue queue;
+
+Connection connection = null;
+
+Session mysession = null;
+
+MessageProducer messageProducer = null;
+
+TextMessage message = null;
+
+%>
+
+<html>
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Welcome To Message Bean Demo</title>
+
+</head>
+
+<body style="background-color: aquamarine;">
+
+<h1>Welcome Message Bean Demo</h1>
+
+<%
+
+try {
+
+InitialContext ctx = new InitialContext();
+
+queue = (Queue) ctx.lookup("jms/Queue");
+
+connectionFactory = (ConnectionFactory) ctx.lookup("jms/QueueFactory");
+
+connection = connectionFactory.createConnection();
+
+mysession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+messageProducer = mysession.createProducer(queue);
+
+message = mysession.createTextMessage();
+
+message.setText(request.getRemoteHost());
+
+messageProducer.send(message);
+
+} catch (JMSException e) {
+
+System.out.println("Exception occurred: " + e.toString());
+
+}
+
+%>
+
+</body>
+
+</html>
+
+VisitorStatBean.java
+
+package ejb;
+
+import java.sql.Connection;
+
+import java.sql.DriverManager;
+
+import java.sql.ResultSet;
+
+import java.sql.SQLException;
+
+import java.sql.Statement;
+
+import javax.annotation.PostConstruct;
+
+import javax.annotation.PreDestroy;
+
+import javax.ejb.Stateless;
+
+@Stateless
+
+public class VisitorStatBean {
+
+private Connection conn = null;
+
+private ResultSet rs;
+
+private Statement stmt = null;
+
+private String query = null;
+
+@PostConstruct
+
+public void connect() {
+
+try {
+
+Class.forName("com.mysql.jdbc.Driver").newInstance();
+
+conn = DriverManager.getConnection("jdbc:mysql://localhost/visitorstats", "root", "root");
+
+System.out.println("Database connection established successfully.");
+
+} catch (Exception e) {
+
+System.err.println("Sorry failed to connect to the Database.");
+
+}
+
+}
+
+@PreDestroy
+
+public void disconnect() {
+
+try {
+
+conn.close();
+
+System.out.println("Database connection closed successfully.");
+
+} catch (SQLException e) {
+
+System.err.println("Cannot close the database connection: " + e.getMessage());
+
+}
+
+}
+
+public void addVisitor(String host) {
+
+try {
+
+stmt = conn.createStatement();
+
+query = "INSERT INTO userstats (hostname, visits) VALUES('" + host + "', '1')";
+
+stmt.executeUpdate(query);
+
+} catch (SQLException e) {
+
+try {
+
+stmt = conn.createStatement();
+
+query = "UPDATE userstats SET visits = visits + 1 WHERE hostname = '" + host + "'";
+
+stmt.executeUpdate(query);
+
+} catch (SQLException ex) {
+
+System.err.println("Cannot update: " + ex.getMessage());
+
+}
+
+}
+
+}
+
+}
+
+BasicMessageBean.java
+
+package ejb;
+
+import javax.annotation.Resource;
+
+import javax.ejb.ActivationConfigProperty;
+
+import javax.ejb.EJB;
+
+import javax.ejb.MessageDriven;
+
+import javax.ejb.MessageDrivenContext;
+
+import javax.jms.JMSException;
+
+import javax.jms.Message;
+
+import javax.jms.MessageListener;
+
+import javax.jms.TextMessage;
+
+@MessageDriven(activationConfig = {
+
+@ActivationConfigProperty(propertyName = "destinationType", propertyValue = "javax.jms.Queue"),
+
+@ActivationConfigProperty(propertyName = "destinationLookup", propertyValue = "jms/Queue")
+
+})
+
+public class BasicMessageBean implements MessageListener {
+
+@EJB
+
+VisitorStatBean vs;
+
+@Resource
+
+private MessageDrivenContext mdc;
+
+public BasicMessageBean() {
+
+}
+
+@Override
+
+public void onMessage(Message message) {
+
+try {
+
+if (message instanceof TextMessage) {
+
+TextMessage msg = (TextMessage) message;
+
+vs.addVisitor(msg.getText());
+
+}
+
+} catch (JMSException e) {
+
+mdc.setRollbackOnly();
+
+}
+
+}
+
+}
+
+OUTPUT:
+
+Practical No.  8
+
+Aim: Develop a Guestbook Application Using JPA.
+
+Files Used:
+
+index.jsp
+
+GuestBookView.jsp
+
+GuestBook.java
+
+Persistence Unit File: persistence.xml
+
+Steps for creating project is same as Practical 1 Part A, steps for creating JSP File is same as Practical 4 Part A. Steps to create Persistence Unit file are as follows,
+
+Right click on the project → click on new & others → Select Persistence → click on next.
+
+Leave the default name of Persistence Unit as it is & select none → click on finish.
+
+Code:
+
+SQL Queries:
+
+CREATE DATABASE GuestBook;
+
+USE GuestBook;
+
+CREATE TABLE GuestBook (VisitorNo INT PRIMARY KEY AUTO_INCREMENT, VisitorName VARCHAR(50), Message VARCHAR(100), MessageDate VARCHAR(40));
+
+persistence.xml
+
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+
+http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+
+version="2.1">
+
+<persistence-unit name="GuestBookJPAPU" transaction-type="RESOURCE_LOCAL">
+
+<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+<class>myApp.GuestBook</class>
+
+<properties>
+
+<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
+
+<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/GuestBook"/>
+
+<property name="javax.persistence.jdbc.user" value="root"/>
+
+<property name="javax.persistence.jdbc.password" value="root"/>
+
+</properties>
+
+</persistence-unit>
+
+</persistence>
+
+index.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<html>
+
+<body style="background-color: greenyellow;">
+
+<h1>Sign the Guest Book <h1>
+
+<br> <br>
+
+<form action="GuestBookView.jsp" method="post">
+
+Visitor Name: <input name="guest" maxlength="25" size="50" /> <br> <br>
+
+Message: <textarea rows="5" cols="36" name="message"></textarea> <br> <br>
+
+<input type="submit" name="btnSubmit" value="Submit" />
+
+</form>
+
+</body>
+
+</html>
+
+GuestBookView.jsp
+
+<%@page import="java.util.*,javax.persistence.*, myApp.GuestBook" %>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!DOCTYPE html>
+
+<%!
+
+private EntityManagerFactory entityManagerFactory;
+
+private EntityManager entityManager;
+
+private EntityTransaction entityTransaction;
+
+List<GuestBook> guestbook;
+
+%>
+
+<%
+
+entityManagerFactory = Persistence.createEntityManagerFactory("GuestBookJPAPU");
+
+entityManager = entityManagerFactory.createEntityManager();
+
+String submit = request.getParameter("btnSubmit");
+
+if(submit != null && ("Submit").equals(submit)) {
+
+try {
+
+String guest = request.getParameter("guest");
+
+String message = request.getParameter("message");
+
+String messageDate = new java.util.Date().toString();
+
+GuestBook gb = new GuestBook();
+
+gb.setVisitorName(guest);
+
+gb.setMessage(message);
+
+gb.setMessageDate(messageDate);
+
+entityTransaction = entityManager.getTransaction();
+
+entityTransaction.begin();
+
+entityManager.persist(gb);
+
+entityTransaction.commit();
+
+} catch (RuntimeException e) {
+
+if(entityTransaction != null) entityTransaction.rollback();
+
+throw e;
+
+}
+
+response.sendRedirect("GuestBookView.jsp");
+
+}
+
+try {
+
+guestbook = entityManager.createQuery("SELECT g from GuestBook g").getResultList();
+
+} catch (RuntimeException e) { }
+
+entityManager.close();
+
+%>
+
+<html>
+
+<body>
+
+View the Guest Book <b>Click <a href="index.jsp"> here</a> to sign the guestbook.</b>
+
+<hr />
+
+<%
+
+Iterator iterator = guestbook.iterator();
+
+while (iterator.hasNext()) {
+
+GuestBook obj = (GuestBook) iterator.next();
+
+%>
+
+On <%= obj.getMessageDate() %>,<br />
+
+<b><%= obj.getVisitorName() %>:</b>
+
+<%= obj.getMessage() %>
+
+<br /><br />
+
+<%
+
+}
+
+%>
+
+</body>
+
+</html>
+
+GuestBook.java
+
+package myApp;
+
+import javax.persistence.Column;
+
+import javax.persistence.Entity;
+
+import javax.persistence.GeneratedValue;
+
+import javax.persistence.GenerationType;
+
+import javax.persistence.Id;
+
+import javax.persistence.Table;
+
+@Entity
+
+@Table(name="GuestBook")
+
+public class GuestBook implements java.io.Serializable {
+
+@Id
+
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+
+@Column(name="VisitorNo", unique=true, updatable=false)
+
+private Integer visitorNo;
+
+@Column(name="VisitorName")
+
+private String visitorName;
+
+@Column(name="Message")
+
+private String message;
+
+@Column(name="MessageDate")
+
+private String messageDate;
+
+public GuestBook() {
+
+}
+
+public Integer getVisitorNo() {
+
+return visitorNo;
+
+}
+
+public void setVisitorNo(Integer visitorNo) {
+
+this.visitorNo = visitorNo;
+
+}
+
+public String getVisitorName() {
+
+return visitorName;
+
+}
+
+public void setVisitorName(String visitorName) {
+
+this.visitorName = visitorName;
+
+}
+
+public String getMessage()
+
+{
+
+return message;
+
+}
+
+public void setMessage(String message) {
+
+this.message = message;
+
+}
+
+public String getMessageDate() {
+
+return messageDate;
+
+}
+
+public void setMessageDate(String messageDate) {
+
+this.messageDate = messageDate;
+
+}
+
+}
+
+OUTPUT:
+
+Practical No. 9
+
+Implement the following Hibernate application.
+
+Practical No.  10
+
+Tag Libraries and Combination of Multiple Java EE Technologies
+
+Part A:
+
+AIM: Create a simple application using cookies to dynamically change the color of the page.
+
+CODE:
+
+<%@ page import="javax.servlet.http.Cookie" %>
+
+<%@ page contentType="text/html;charset=UTF-8" %>
+
+<html>
+
+<head>
+
+<title>Dynamic Background Color with Cookies</title>
+
+</head>
+
+<%
+
+String bgColor = "white";
+
+String selectedColor = request.getParameter("color");
+
+if (selectedColor != null && !selectedColor.isEmpty()) {
+
+Cookie colorCookie = new Cookie("bgColor", selectedColor);
+
+colorCookie.setMaxAge(60 * 60 * 24 * 7);
+
+response.addCookie(colorCookie);
+
+bgColor = selectedColor;
+
+}
+
+else {
+
+Cookie[] cookies = request.getCookies();
+
+if (cookies != null)
+
+{
+
+if ("bgColor".equals(cookies[0].getName()))
+
+{
+
+bgColor = cookies[0].getValue();
+
+}
+
+}
+
+}
+
+%>
+
+<body style="background-color: <%= bgColor %>;">
+
+<h1>Select a Background Color</h1>
+
+<form method="post">
+
+Choose a color:<input type="color" name="color" value="<%= bgColor %>">
+
+<br><br>
+
+<input type="submit" value="Change Background Color">
+
+</form>
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Part B:
+
+AIM: Create a JSP page to demonstrate the use of Function tag library.
+
+CODE:
+
+index.jsp
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>JSTL Function Tag Library</title>
+
+</head>
+
+<body>
+
+<!-- Example Strings -->
+
+<c:set var="str1" value="Hello World!" />
+
+<c:set var="str3" value="apple#banana#cherry#dragon fruit" />
+
+<c:set var="strSpaces" value="   Text with leading and trailing spaces   " />
+
+<c:set var="str2" value="Hello, World, How, are, you?" />
+
+<c:set var="str4" value="Hello, World! Hello, World!" />
+
+<!-- fn:length -->
+
+<h2>fn:length</h2>
+
+<p>Length of "${str1}": ${fn:length(str1)}</p>
+
+<!-- fn:toUpperCase -->
+
+<h2>fn:toUpperCase</h2>
+
+<p>Uppercase of "${str1}": ${fn:toUpperCase(str1)}</p>
+
+<!-- fn:toLowerCase -->
+
+<h2>fn:toLowerCase</h2>
+
+<p>Lowercase of "${str1}": ${fn:toLowerCase(str1)}</p>
+
+<!-- fn:trim -->
+
+<h2>fn:trim</h2>
+
+<p>Trimmed text: "${fn:trim(strSpaces)}"</p>
+
+<!-- fn:substring -->
+
+<h2>fn:substring</h2>
+
+<p>Substring (0, 5) of "${str1}": ${fn:substring(str1, 0, 5)}</p>
+
+<!-- fn:substringAfter -->
+
+<h2>fn:substringAfter</h2>
+
+<p>Substring after ', ' in "${str2}": ${fn:substringAfter(str2, ', ')}</p>
+
+<!-- fn:substringBefore -->
+
+<h2>fn:substringBefore</h2>
+
+<p>Substring before ', ' in "${str2}": ${fn:substringBefore(str2, ', ')}</p>
+
+<!-- fn:contains -->
+
+<h2>fn:contains</h2>
+
+<p>Does "${str1}" contain "world"? ${fn:contains(str1, "world")}</p>
+
+<!-- fn:containsIgnoreCase -->
+
+<h2>fn:containsIgnoreCase</h2>
+
+<p>Does "${str1}" contain "world" (ignore case)? ${fn:containsIgnoreCase(str1,  "wORld")}</p>
+
+<!-- fn:startsWith -->
+
+<h2>fn:startsWith</h2>
+
+<p>Does "${str1}" start with "Hello"? ${fn:startsWith(str1, "Hello")}</p>
+
+<!-- fn:endsWith -->
+
+<h2>fn:endsWith</h2>
+
+<p>Does "${str1}" end with "World!"? ${fn:endsWith(str1, "World!")}</p>
+
+<!-- fn:indexOf -->
+
+<h2>fn:indexOf</h2>
+
+<p>Index of "World" in "${str1}": ${fn:indexOf(str1, "World")}</p>
+
+<!-- fn:split -->
+
+<h2>fn:split</h2>
+
+<c:set var="fruits" value="${fn:split(str3, '#')}" />
+
+<p>Split "${str3}" by hash:</p>
+
+<c:forEach var="fruit" items="${fruits}">
+
+<p>${fruit}</p>
+
+</c:forEach>
+
+<!-- fn:replace -->
+
+<h2>fn:replace</h2>
+
+<p>Replace "World" with "Universe" in "${str4}": ${fn:replace(str4, "World", "Universe")}</p>
+
+<!-- fn:join -->
+
+<h2>fn:join</h2>
+
+<p>Join "${str2}" with * $ *: ${fn:join(fn:split(str2,','), ' * $ * ')}</p>
+
+<!-- fn:escapeXml -->
+
+<h2>fn:escapeXml</h2>
+
+<c:set var="xmlText" value="<b><u><i>Value</i></u></b><hr>" />
+
+<p>Original XML: ${xmlText}</p>
+
+<p>Escaped XML: ${fn:escapeXml(xmlText)}</p>
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Part C:
+
+AIM: Create a JSP page to demonstrate the use of SQL tag library.
+
+DATABASE CODE:
+
+CREATE DATABASE testdb;
+
+USE testdb;
+
+CREATE TABLE employees ( id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(50), department VARCHAR(50));
+
+INSERT INTO employees (name, department) VALUES ('Ajay', 'IT'), ('Alka C', 'DS'), ('Anita', 'Chemistry'), ('Aryan', 'IT'), ('Arvind', 'DS'), ('Anjali', 'Chemistry'), ('Atharva', 'Chemistry');
+
+CODE:
+
+index.jsp
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/sql" prefix="sql" %>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<html>
+
+<head>
+
+<title>SQL Tag Library Example</title>
+
+</head>
+
+<body>
+
+<%-- Establish database connection --%>
+
+<sql:setDataSource var="dataSource"
+
+driver="com.mysql.jdbc.Driver"
+
+url="jdbc:mysql://localhost:3306/testdb"
+
+user="root"
+
+password="root"/>
+
+<%-- Execute a SQL query --%>
+
+<sql:query dataSource="${dataSource}" var="result">
+
+SELECT * FROM employees;
+
+</sql:query>
+
+<h2>Employees List</h2>
+
+<table border="1">
+
+<tr>
+
+<th>ID</th>
+
+<th>Name</th>
+
+<th>Department</th>
+
+</tr>
+
+<%-- Iterate over the result set --%>
+
+<c:forEach var="row" items="${result.rows}">
+
+<tr>
+
+<td><c:out value="${row.id}"/></td>
+
+<td><c:out value="${row.name}"/></td>
+
+<td><c:out value="${row.department}"/></td>
+
+</tr>
+
+</c:forEach>
+
+</table>
+
+</body>
+
+</html>
+
+OUTPUT:
+
+Part D:
+
+AIM: Create a JSP page to demonstrate the use of XML tag library.
+
+FILE NAMES GIVEN:
+
+XML File: data.xml
+
+STEPS: Create a xml file in WEB-INF folder of your Project.
+
+Right Click on the WEB-INF folder of your Project  Click on NEW  Click on OTHER
+
+Select XML and XML Document  Click on NEXT
+
+Enter the Name of XML file: data  Click on NEXT
+
+Select Well-formatted Document  Click on FINISH
+
+CODE:
+
+data.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<catalog>
+
+<book>
+
+<name>Harry Potter And Philosopher's Stone </name>
+
+<price>500.00</price>
+
+<discount>15</discount>
+
+<inStock>true</inStock>
+
+</book>
+
+<book>
+
+<name>Harry Potter And Chamber of Secrets</name>
+
+<price>415.00</price>
+
+<inStock>false</inStock>
+
+</book>
+
+<book>
+
+<name>Harry Potter And Prisoner of Azkaban</name>
+
+<price>645.00</price>
+
+<discount>10</discount>
+
+<inStock>true</inStock>
+
+</book>
+
+<book>
+
+<name>Harry Potter And Goblet of Fire</name>
+
+<price>640.00</price>
+
+<discount>10</discount>
+
+<inStock>true</inStock>
+
+</book>
+
+<book>
+
+<name>Harry Potter And Order of the Phoenix </name>
+
+<price>675.00</price>
+
+<inStock>true</inStock>
+
+</book>
+
+<book>
+
+<name>Harry Potter And Half-Blood Prince</name>
+
+<price>945.00</price>
+
+<discount>20</discount>
+
+<inStock>false</inStock>
+
+</book>
+
+<book>
+
+<name>Harry Potter And Deathly Hallows</name>
+
+<price>767.00</price>
+
+<discount>13</discount>
+
+<inStock>true</inStock>
+
+</book>
+
+<book>
+
+<name>Harry Potter and the Cursed Child</name>
+
+<price>600.00</price>
+
+<discount>10</discount>
+
+<inStock>true</inStock>
+
+</book>
+
+</catalog>
+
+index.jsp
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/xml" prefix="x" %>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<%@ page contentType="text/html; charset=UTF-8" %>
+
+<%@ page pageEncoding="UTF-8" %>
+
+<!-- Load and parse the XML data from a file -->
+
+<c:import url="/WEB-INF/data.xml" var="xmlData" />
+
+<x:parse var="catalogs" xml="${xmlData}" />
+
+<h2 align='center'>Book Catalog</h2>
+
+<ul>
+
+<x:forEach var="book" select="$catalogs/catalog/book">
+
+<li type='square'>
+
+<!-- Display book name -->
+
+<b>Name:</b> <x:out select="name" /><br />
+
+<!-- Display book price -->
+
+<b>Price:</b> ₹<x:out select="price" /><br />
+
+<!-- Conditionally display discount if it exists -->
+
+<x:if select="boolean(discount)">
+
+<b>Discount:</b> <x:out select="discount" />%<br />
+
+</x:if>
+
+<!-- Use x:choose to display stock status -->
+
+<x:choose>
+
+<x:when select="inStock = 'true'">
+
+<b>Status:</b> In Stock<br />
+
+</x:when>
+
+<x:otherwise>
+
+<b>Status:</b> Out of Stock<br />
+
+</x:otherwise>
+
+</x:choose>
+
+<!-- Set a new variable to calculate the final price after discount -->
+
+<x:set var="finalPrice" select="price - (price * discount div 100)" />
+
+<!-- Display the final price if there is a discount -->
+
+<x:if select="boolean(discount)">
+
+<b>Final Price after Discount:</b> ₹<x:out select="$finalPrice" /><br />
+
+</x:if>
+
+<br> <hr color='skyblue' size='5'> <br>
+
+</li>
+
+</x:forEach>
+
+</ul>
+
+OUTPUT:
+
+Part E:
+
+AIM: Create a JSP page to demonstrate the use of Formatting tag library.
+
+CODE:
+
+index.jsp
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>JSTL Formatting Tag Library</title>
+
+</head>
+
+<body>
+
+<!-- Setting the time attribute directly in JSP -->
+
+<c:set var="time" value="<%= new java.util.Date() %>" />
+
+<!-- fmt:formatNumber -->
+
+<h2>Number and Currency Formatting Options</h2>
+
+<fmt:setLocale value="en_IN" />
+
+<p>Number: <fmt:formatNumber value="12345.6789" type="number" /></p>
+
+<p>Currency: <fmt:formatNumber value="12345.6789" type="currency" /></p>
+
+<p>Percentage: <fmt:formatNumber value="0.75" type="percent" /></p>
+
+<!-- fmt:formatNumber with specific number of decimals -->
+
+<p>Number with 2 decimal places: <fmt:formatNumber value="12345.6789"     type="number" minFractionDigits="2" maxFractionDigits="2" /></p>
+
+<p>Number with minimum 3 decimal places: <fmt:formatNumber value="12345.69" type="number" minFractionDigits="3" maxFractionDigits="5" /></p>
+
+<p>Number with no decimal places: <fmt:formatNumber value="12345.6789" type="number" minFractionDigits="0" maxFractionDigits="0" /></p>
+
+<!-- fmt:formatDate -->
+
+<h2>Different Date and Time Formatting Options</h2>
+
+<p>Date: <fmt:formatDate value="${time}" pattern="yyyy-MM-dd HH:mm:ss" /></p>
+
+<p>Standard Date and Time:
+
+<fmt:formatDate value="${time}" pattern="yyyy-MM-dd HH:mm:ss" /> </p>
+
+<p>Short Date: <fmt:formatDate value="${time}" pattern="MM#dd$yyyy" /></p>
+
+<p>Long Date: <fmt:formatDate value="${time}" pattern="EEEE, MMMM dd, yyyy" />      </p>
+
+<p>Full Date and Time:
+
+<fmt:formatDate value="${time}" pattern="EEEE, MMMM dd, yyyy HH:mm:ss a z" />      </p>
+
+<p>Time (24-hour): <fmt:formatDate value="${time}" pattern="HH:mm:ss" /></p>
+
+<p>Time (12-hour): <fmt:formatDate value="${time}" pattern="hh:mm:ss a" /></p>
+
+<p>Year and Month: <fmt:formatDate value="${time}" pattern="yyyy-MM" /></p>
+
+<p>Day of the Week: <fmt:formatDate value="${time}" pattern="EEEE" /></p>
+
+<p>Day, Month, and Year:
+
+<fmt:formatDate value="${time}" pattern="dd MMMM yyyy" /> </p>
+
+<p>ISO 8601 Date: <fmt:formatDate value="${time}" pattern="yyyy-MM-       dd'T'HH:mm:ss.SSSXXX" /></p>
+
+<!-- fmt:parseNumber -->
+
+<c:set var="numberStr" value="1,234.56" />
+
+<p>Parsed Number: <fmt:parseNumber value="${numberStr}" type="number" /></p>
+
+<!-- fmt:parseDate -->
+
+<c:set var="dateStr" value="2023-12-15 13:45:00" />
+
+<p>Parsed Date:
+
+<fmt:parseDate value="${dateStr}" pattern="yyyy-MM-dd HH:mm:ss" /> </p>
+
+<!-- fmt:setLocale and fmt:formatDate with locale -->
+
+<h2>Date and Time Formatting in Different Locale</h2>
+
+<fmt:setLocale value="fr_FR" />
+
+<p>Date in French locale:
+
+<fmt:formatDate value="${time}" pattern="EEEE, d MMMM yyyy" /> </p>
+
+<p>Time in French locale: <fmt:formatDate value="${time}" pattern="HH:mm:ss" /></p>
+
+<fmt:setLocale value="de_DE" />
+
+<p>Date in German locale:
+
+<fmt:formatDate value="${time}" pattern="EEEE, d MMMM yyyy" /> </p>
+
+<p>Time in German locale: <fmt:formatDate value="${time}" pattern="HH:mm:ss" />           </p>
+
+<fmt:setLocale value="en_US" />
+
+<p>Date in English locale:
+
+<fmt:formatDate value="${time}" pattern="EEEE, d MMMM yyyy" /> </p>
+
+<p>Time in English locale: <fmt:formatDate value="${time}" pattern="hh:mm:ss a" /> </p>
+
+</body>
+
+</html>
+
+OUTPUT:
+
